@@ -80,7 +80,7 @@ void PrintHStable()
 
     for (i = 0; i < HTsize; i++) {  //Hash Table의 모든 요소 탐색
         if (HT[i] != NULL) {  //NULL이 아닌 경우에만 출력
-            printf("  Hash Code %3d : ", i);
+            printf("  Hash Code %3d :", i);
             for (here = HT[i]; here != NULL; here = here->next) {
                 j = here->index;
                 while (ST[j] != '\0' && j < STsize)
@@ -90,16 +90,7 @@ void PrintHStable()
             printf("\n");
         }
     }
-    printf("\n\n\n < %d characters are used in the string table >\n", nextSTfree);
-}
-
-void PrintID()
-{
-    char tmp[100];
-    for (int i = nextid; i < nextSTfree - 1; i++)
-        tmp[i-nextid]=ST[i];
-    tmp[nextSTfree-nextid-1]='\0';
-    printf("%-10s", tmp);
+    printf("\n\n\n < %5d characters are used in the string table >\n", nextSTfree);
 }
 
 void PrintError(ERRORtypes error)
@@ -113,21 +104,34 @@ void PrintError(ERRORtypes error)
             exit(0);
             break;
         case illsp :
-            printf(" ***Error***        %c is illegal seperator \n", input);
+            printf(" ***Error***        %c            is illegal seperator \n", input);
             break;
         case illid :
             printf(" ***Error***        ");
-            PrintID();
-            printf("start with digit \n");
+            while (input != EOF && (isLetter(input) || isDigit(input))) {
+                printf("%c", input);
+                input = fgetc(fp);
+            }
+            printf("        start with digit \n");
             break;
         case illlen :
             printf(" ***Error***        ");
-            PrintID();
+            for (i = nextid; i < nextSTfree - 1; i++)
+                printf("%c", ST[i]);
             printf("        too long identifier \n");
             break;
         case wrongid :
             printf(" ***Error***        ");
-            PrintID();
+            for (int i = nextid; i < nextSTfree; i++)
+            {
+                printf("%c", ST[i]);
+            }
+            printf("       ");
+            for (i = nextid; i < nextSTfree; i++)
+            {
+                if (!(isDigit(ST[i]) || isLetter(ST[i])))
+                    printf("%c ", ST[i]);
+            }
             printf("is not allowed\n");
             break;
     }
@@ -154,28 +158,29 @@ void ReadID()
     nextid = nextSTfree;
     if (isDigit(input)) {    //숫자로 시작하는 경우
         error = illid;
+        PrintError(error);
     }
-    //문자로 시작
-    while (input != EOF && (isLetter(input) || isDigit(input))) {  //숫자, 문자인 경우
-        if (nextSTfree == STsize) {  //String Table이 꽉찬 경우
-            error = overst;
+    else {  //문자로 시작
+        while (input != EOF && (isLetter(input) || isDigit(input))) {  //숫자, 문자인 경우
+            if (nextSTfree == STsize) {  //String Table이 꽉찬 경우
+                error = overst;
+                PrintError(error);
+            } //오버플로우가 아니면
+            ST[nextSTfree++] = input;
+            input = fgetc(fp); //다음 글자 읽어서 구분자 나올 때까지 반복
+            //문장 끝이 아니고 구분자/문자/숫자가 아니라면
+            while (input != EOF && !(isSeperator(input) || isLetter(input) || isDigit(input))) {
+                flag = 1;
+                ST[nextSTfree++] = input; //ST배열에 input 넣고
+                input = fgetc(fp); //구분자/문자/숫자 나올 때까지 반복
+            }
+        }
+        if (flag == 1) {
+            error = wrongid; //잘못된 인자임
             PrintError(error);
-        } //오버플로우가 아니면
-        ST[nextSTfree++] = input;
-        input = fgetc(fp); //다음 글자 읽어서 구분자 나올 때까지 반복
-        //문장 끝이 아니고 구분자/문자/숫자가 아니라면
-        while (input != EOF && !(isSeperator(input) || isLetter(input) || isDigit(input))) {
-            flag = 1;
-            ST[nextSTfree++] = input; //ST배열에 input 넣고
-            input = fgetc(fp); //구분자/문자/숫자 나올 때까지 반복
+            nextSTfree = nextid;
         }
     }
-    if (flag == 1) {
-        error = wrongid; //잘못된 인자임
-        nextSTfree = nextid;
-    }
-
-    PrintError(error);
 }
 
 /*Hash code 계산*/
@@ -229,6 +234,7 @@ void ADDHT(int hscode)
 
 int main()
 {
+    int i;
     PrintHeading(); //header 프린트
     initialize(); //txt파일에서 한 글자를 input 변수에 넣음
 
@@ -239,9 +245,10 @@ int main()
         SkipSeperators(); //word의 처음이 구분자면, skip. 잘못된 구분자면, error.
         //인자로 들어갈 수 있는 input은 문자/숫자만 가능
         ReadID(); //구분자(잘못된 구분자 포함)가 나오기 전까지 문자/숫자로 이루어진 word를 ST테이블에 저장
+        SkipSeperators();
 
         //ST에 넣은 word를 HT에 배치
-        if (input != EOF && error != illid && error != wrongid) {
+        if (error != illid && error != wrongid) {
             //nestSTfree는 값을 넣은 후에 ++되므로, ++된 이후에 한번도 overflow검사를 진행하지 않았기때문에 한번 더 검사
             if (nextSTfree == STsize) {
                 error = overst;
@@ -260,13 +267,16 @@ int main()
             }
             else if (!found) {
                 printf("%6d              ", nextid);
-                PrintID();
+                for (i = nextid; i < nextSTfree - 1; i++) {
+                    printf("%c", ST[i]);
+                }
                 printf("       (entered)\n");
                 ADDHT(hashcode);
             }
             else {
                 printf("%6d              ", sameid);
-                PrintID();
+                for (i = nextid; i < nextSTfree - 1; i++)
+                    printf("%c", ST[i]);
                 printf("       (already existed)\n");
                 nextSTfree = nextid;
             }
