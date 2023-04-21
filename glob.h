@@ -1,10 +1,9 @@
 #pragma once
 #define STsize 1000
-
+#define Strsize 100
 char ST[STsize];
-int nextid = 0;
-int nextSTfree = 0;
-int sameid;
-int found;
+char string[Strsize];
+int nextid;
+int nextSTfree;
 int line;
 int cErrors;
