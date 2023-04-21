@@ -54,6 +54,6 @@ digit   [0-9]
 %%
 int yywrap()
 {
-    printf("KIM WONWOO,KIM JEEYOUN, KIM DOYEON, HA YUNJI\n");
+    printf("KIM WONWOO, KIM JEEYOUN, KIM DOYEON, HA YUNJI\n");
     return 1;
 }
