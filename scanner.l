@@ -50,7 +50,7 @@ digit   [0-9]
 [ \t]		return(TSEPARATOR);
 [\n]		return(TLINE);
 {digit}+{letter}({letter}|{digit})*	return(TILLID);
-[^( \t\n)]*      return (TERROR);
+.       return(TERROR);
 %%
 int yywrap()
 {
