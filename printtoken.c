@@ -21,7 +21,7 @@ void printtoken(enum tokentypes tn) {
     else {
         printf("%5d\t\t", line);
         switch (tn) {
-        case TCONST: printf("Constant\t\t\t\t%s", yytext); break;
+        case TCONST: printf("Constant\t\t\t%s", yytext); break;
         case TELSE: printf("Else\t\t\t\t%s", yytext); break;
         case TIF: printf("If\t\t\t\t%s", yytext); break;
         case TINT: printf("Integer\t\t\t\t%s", yytext); break;
@@ -38,18 +38,18 @@ void printtoken(enum tokentypes tn) {
         case TASSIGN: printf("Assign\t\t\t\t%s", yytext); break;
         case TADDASSIGN: printf("Add and assign\t\t\t%s", yytext); break;
         case TSUBASSIGN: printf("Subtract and assign\t\t\t%s", yytext); break;
-        case TMULASSIGN: printf("Multiply and assign\t\t\t%s", yytext); break;
-        case TDIVASSIGN: printf("Divide and assign\t\t\t%s", yytext); break;
+        case TMULASSIGN: printf("Multiply and assign\t\t%s", yytext); break;
+        case TDIVASSIGN: printf("Divide and assign\t\t%s", yytext); break;
         case TMODASSIGN: printf("Mod and assign\t\t\t%s", yytext); break;
 
         case TNOT: printf("Not\t\t\t\t%s", yytext); break;
         case TAND: printf("And\t\t\t\t%s", yytext); break;
         case TOR: printf("Or\t\t\t\t%s", yytext); break;
 
-        case TEQUAL: printf("Equal\t\t\t%s", yytext); break;
+        case TEQUAL: printf("Equal\t\t\t\t%s", yytext); break;
         case TNOTEQU: printf("Not Equal\t\t\t%s", yytext); break;
-        case TLESS: printf("Less\t\t\t%s", yytext); break;
-        case TGREAT: printf("Great\t\t\t%s", yytext); break;
+        case TLESS: printf("Less\t\t\t\t%s", yytext); break;
+        case TGREAT: printf("Great\t\t\t\t%s", yytext); break;
         case TLESSE: printf("Less equal\t\t\t%s", yytext); break;
         case TGREATE: printf("Great equal\t\t\t%s", yytext); break;
 
