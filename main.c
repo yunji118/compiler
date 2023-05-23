@@ -1,229 +1,60 @@
+/*main.c - ÀüÃ¼ ÇÁ·Î±×·¥ ½ÇÇà
+* programmer - ±èÁöÀ±, ±èµµ¿¬, ±è¿ø¿ì, ÇÏÀ±Áö
+* date - 2023/04/26
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "tn.h"
+#include "glob.h"
 
-#define FILE_NAME "testdata.txt"
+//extern yylex();
+//extern char* yytext;
+extern int yyparse();
+extern void printtoken(int tn);
 
-#define STsize 1000   //size of string table
-#define HTsize 100     //size of hash table
+//int hashcode;   //hash code of identifier
+//int sameid;   //first index of identifier
 
-#define FALSE 0
-#define TRUE 1
+//int found;   // flag variable for the previous occurence of an indentifier
 
-#define isLetter(x) (((x) >= 'a' && (x) <= 'z') || ((x) >= 'A' && (x) <= 'Z') || (x) == '_')  // ì–¸ë”ë°” ì¶”ê°€
-#define isDigit(x) ((x) >= '0' && (x) <= '9')
+enum errorTypes error;
 
-typedef struct HTentry* HTpointer;
-typedef struct HTentry {
-    int index;  //index of identifier in ST
-    HTpointer next;  //pointer to next identifier
-}HTentry;
-
-enum errorTypes { noerror, illsp, illid, overst, illlen, wrongid };   // illlenì¶”ê°€(ê¸¸ì´ê°€ 10ì´ˆê³¼ì¸ ê²½ìš°), wrongidëŠ” ì˜ëª»ëœ ì¸ìê°€ ìˆëŠ” ê²½ìš°
-typedef enum errorTypes ERRORtypes;
-
-char seperators[] = " .,;:?!\t\n";
-
-HTpointer HT[HTsize];
-char ST[STsize];
-
-int nextid = 0;  //the current identifier
-int nextSTfree = 0;  //the next available index of ST
-
-int hashcode;   //hash code of identifier
-int sameid;   //first index of identifier
-
-int found;   // flag variable for the previous occurence of an indentifier
-
-ERRORtypes error;
-
-FILE* fp;    //to be a pointer to FILE
-char input;    //current read character from FILE
-
-//txtíŒŒì¼ì„ í•œê¸€ìì”© ì½ìŒ
-void initialize()
-{
-    fp = fopen(FILE_NAME, "r");
-    input = fgetc(fp);
-}
-
-void PrintHeading()
-{
-    printf("\n\n");
-    printf("  -----------   ------------ \n");
-    printf("  Index in ST    identifier  \n");
-    printf("  -----------   ------------ \n");
-    printf("\n");
-}
-
-/*êµ¬ë¶„ì íŒë³„í•˜ëŠ” í•¨ìˆ˜. êµ¬ë¶„ìì¸ ê²½ìš° 1ì„ ë°˜í™˜. êµ¬ë¶„ì ì•„ë‹ ê²½ìš° 0ì„ ë°˜í™˜*/
-int isSeperator(char c)
-{
-    int i;
-    int sep_len;
-
-    sep_len = strlen(seperators);   //êµ¬ë¶„ì ë°°ì—´ì˜ ê¸¸ì´ (=êµ¬ë¶„ìì˜ ê°œìˆ˜)
-    for (i = 0; i < sep_len; i++) { //ê¸¸ì´ë§Œí¼ ë°˜ë³µí•¨
-        if (c == seperators[i]) //ë°°ì—´ë‚´ì— ì¡´ì¬í•˜ë©´
-            return 1; //êµ¬ë¶„ì o
-    }
-    return 0; //êµ¬ë¶„ì x
-}
-
-/*Hash Table ì¶œë ¥*/
-void PrintHStable()
-{
-    int i, j;   //i = hash table ë°°ì—´ íƒìƒ‰, j = hash codeê°€ ê°™ì€ ì—°ê²°ë¦¬ìŠ¤íŠ¸ íƒìƒ‰
-    HTpointer here;
-
-    printf("\n\n\n\n\n [[ HASH TABLE ]] \n\n");
-
-    for (i = 0; i < HTsize; i++) {  //Hash Tableì˜ ëª¨ë“  ìš”ì†Œ íƒìƒ‰
-        if (HT[i] != NULL) {  //NULLì´ ì•„ë‹Œ ê²½ìš°ì—ë§Œ ì¶œë ¥
-            printf("  Hash Code %3d :", i);
-            for (here = HT[i]; here != NULL; here = here->next) {
-                j = here->index;
-                while (ST[j] != '\0' && j < STsize)
-                    printf("%c", ST[j++]);
-                printf("     ");
-            }
-            printf("\n");
-        }
-    }
-    printf("\n\n\n < %5d characters are used in the string table >\n", nextSTfree);
-}
-
-void PrintID()
-{
-    for (int i = nextid; i < nextSTfree-1; i++) {
-        printf("%c", ST[i]);
-    }
-}
-
-void PrintError(ERRORtypes error)
-{
-    int i;
-
-    switch (error) {
-        case overst:
-            printf(" ***Error***      OVERFLOW ");
-            PrintHStable();
-            exit(0);
-            break;
-        case illsp:
-            printf(" ***Error***        %c            is illegal seperator \n", input);
-            break;
-        case illid:
-            printf(" ***Error***        ");
-            PrintID();
-            printf("        start with digit \n");
-            nextSTfree = nextid;
-            break;
-        case illlen:
-            printf(" ***Error***        ");
-            PrintID();
-            printf("        too long identifier \n");
-            break;
-        case wrongid:
-            printf(" ***Error***        ");
-            PrintID();
-            printf("       ");
-            for (i = nextid; i < nextSTfree-1; i++)
-            {
-                if (!(isDigit(ST[i]) || isLetter(ST[i])))
-                    printf("%c ", ST[i]);
-            }
-            printf("is not allowed\n");
-            nextSTfree = nextid;
-            break;
-    }
-}
-
-/* 9ê°œì˜ êµ¬ë¶„ì(spaces tabs . , : ; ? ! \n) ê±´ë„ˆë›°ëŠ” í•¨ìˆ˜*/
-void SkipSeperators()
-{
-    while (input != EOF && !(isLetter(input) || isDigit(input)))
-    { //íŒŒì¼ì˜ ëì´ ì•„ë‹ˆë©´ì„œ ìœ íš¨í•œ ë¬¸ìë‚˜ ìˆ«ìê°€ ì•„ë‹Œ ê²½ìš°
-        if (!isSeperator(input)) {  //êµ¬ë¶„ìê°€ ì•„ë‹ˆê³ 
-            error = illsp;
-            PrintError(error);
-        }
-        input = fgetc(fp); //ë‹¤ìŒ ê¸€ì ì½ì–´ì„œ ë°˜ë³µ
-    } //ë¬¸ì, ìˆ«ìë©´ while loop íƒˆì¶œ
-}
-
-//txtì— ì íŒ í•˜ë‚˜ì˜ wordë¥¼ STë¡œ ì˜®ê¸°ëŠ” í•¨ìˆ˜
-void ReadID()
-{
-    int flag = 0;
-
-    nextid = nextSTfree;
-
-    if (isDigit(input)) {    //ìˆ«ìë¡œ ì‹œì‘í•˜ëŠ” ê²½ìš°
-        error = illid;
-    }
-
-    while (input != EOF && (isLetter(input) || isDigit(input))) {  //ìˆ«ì, ë¬¸ìì¸ ê²½ìš°
-        if (nextSTfree == STsize) {  //String Tableì´ ê½‰ì°¬ ê²½ìš°
-            error = overst;
-            PrintError(error);
-        }
-        //ì˜¤ë²„í”Œë¡œìš°ê°€ ì•„ë‹ˆë©´
-        ST[nextSTfree++] = input;
-        input = fgetc(fp); //ë‹¤ìŒ ê¸€ì ì½ì–´ì„œ êµ¬ë¶„ì ë‚˜ì˜¬ ë•Œê¹Œì§€ ë°˜ë³µ
-
-        //ë¬¸ì¥ ëì´ ì•„ë‹ˆê³  êµ¬ë¶„ì/ë¬¸ì/ìˆ«ìê°€ ì•„ë‹ˆë¼ë©´
-        while (input != EOF && !(isSeperator(input) || isLetter(input) || isDigit(input))) {
-            flag = 1;
-            ST[nextSTfree++] = input; //STë°°ì—´ì— input ë„£ê³ 
-            input = fgetc(fp); //êµ¬ë¶„ì/ë¬¸ì/ìˆ«ì ë‚˜ì˜¬ ë•Œê¹Œì§€ ë°˜ë³µ
-        }
-    }
-    if (flag == 1 && error != illid) {
-        error = wrongid; //ì˜ëª»ëœ ì¸ìì„
-        //PrintError(error);
-    }
-    //í•˜ë‚˜ì˜ wordë¥¼ ì…ë ¥í•˜ë©´ ìë™ìœ¼ë¡œ ê³µë°± ì €ì¥
-    ST[nextSTfree++] = '\0';
-
-    PrintError(error);
-}
-
-/*Hash code ê³„ì‚°*/
+/*Hash code °è»ê*/
 void ComputeHS(int nid, int nfree)
 {
     int code, i;
-    code = 0; //word ì•„ìŠ¤í‚¤ì½”ë“œ í•© ë³€ìˆ˜
+    code = 0; //word ¾Æ½ºÅ°ÄÚµå ÇÕ º¯¼ö
     for (i = nid; i < nfree - 1; i++) {
         code += (int)ST[i];
-        hashcode = code % HTsize; //ì•„ìŠ¤í‚¤ì½”ë“œ í•© mod í•´ì‹œí…Œì´ë¸” ì‚¬ì´ì¦ˆ -> hashcode
+        hashcode = code % HTsize; //¾Æ½ºÅ°ÄÚµå ÇÕ mod ÇØ½ÃÅ×ÀÌºí »çÀÌÁî -> hashcode
     }
-
 }
 
 void LookupHS(int nid, int hscode)
 {
-    HTpointer here; //HT ì‹œì‘ í¬ì¸í„° ì†ì˜¨
+    HTpointer here; //HT ½ÃÀÛ Æ÷ÀÎÅÍ ¼Õ¿Â
     int i, j;
 
-    found = FALSE; //ì´ë¯¸ HTì— ìˆëŠ” ë¬¸ìì—´ì´ë©´ TRUE ì•„ë‹ˆë©´ FALSE
-    if (HT[hscode] != NULL) { //NULLì´ ì•„ë‹Œ ê²½ìš°ì—ë§Œ íƒìƒ‰
+    found = FALSE; //ÀÌ¹Ì HT¿¡ ÀÖ´Â ¹®ÀÚ¿­ÀÌ¸é TRUE ¾Æ´Ï¸é FALSE
+    if (HT[hscode] != NULL) { //NULLÀÌ ¾Æ´Ñ °æ¿ì¿¡¸¸ Å½»ö
         here = HT[hscode];
-        while (here != NULL && found == FALSE) {  //ë™ì¼í•œ ê°’ ì°¾ì§€ ëª»í–ˆê³ , ì—°ê²° ë¦¬ìŠ¤íŠ¸ì˜ ëì´ ì•„ë‹ˆë©´ ê³„ì† íƒìƒ‰
-            found = TRUE; //ì´ë¯¸ ì¡´ì¬í•˜ëŠ” ë‹¨ì–´ë¡œ ê°€ì •
-            i = here->index;   //í˜„ì¬ hash tableì— ë“¤ì–´ìˆëŠ” ë‹¨ì–´
-            j = nid;      //ì§€ê¸ˆ ì¤‘ë³µ ê²€ì‚¬ë¥¼ í•˜ëŠ” ë‹¨ì–´
+        while (here != NULL && found == FALSE) {  //µ¿ÀÏÇÑ °ª Ã£Áö ¸øÇß°í, ¿¬°á ¸®½ºÆ®ÀÇ ³¡ÀÌ ¾Æ´Ï¸é °è¼Ó Å½»ö
+            found = TRUE; //ÀÌ¹Ì Á¸ÀçÇÏ´Â ´Ü¾î·Î °¡Á¤
+            i = here->index;   //ÇöÀç hash table¿¡ µé¾îÀÖ´Â ´Ü¾î
+            j = nid;      //Áö±İ Áßº¹ °Ë»ç¸¦ ÇÏ´Â ´Ü¾î
             sameid = i;
-            //HTì˜ hscodeì— indexìƒì— ì €ì¥ëœ ë‹¨ì–´ê°€ ì´ë¯¸ ìˆëŠ” ë‹¨ì–´ì¸ì§€ ê²€ì‚¬
+            //HTÀÇ hscode¿¡ index»ó¿¡ ÀúÀåµÈ ´Ü¾î°¡ ÀÌ¹Ì ÀÖ´Â ´Ü¾îÀÎÁö °Ë»ç
             while (ST[i] != '\0' && ST[j] != '\0' && found == TRUE) {
-                if (ST[i] != ST[j])  //ë‹¤ë¥¸ ë‹¨ì–´
+                if (ST[i] != ST[j])  //´Ù¸¥ ´Ü¾î
                     found = FALSE;
-                else {  //í˜„ì¬ ê¸€ìê°€ ê°™ìœ¼ë©´ ë‹¤ìŒ ê¸€ì íƒìƒ‰
+                else {  //ÇöÀç ±ÛÀÚ°¡ °°À¸¸é ´ÙÀ½ ±ÛÀÚ Å½»ö
                     i++;
                     j++;
                 }
             }
-            here = here->next; //ë‹¤ìŒ ì—°ê²°ë¦¬ìŠ¤íŠ¸ì— ì €ì¥ëœ wordì™€ ê²¹ì¹˜ëŠ”ì§€ ê²€ì‚¬
+            here = here->next; //´ÙÀ½ ¿¬°á¸®½ºÆ®¿¡ ÀúÀåµÈ word¿Í °ãÄ¡´ÂÁö °Ë»ç
         }
     }
 }
@@ -238,51 +69,87 @@ void ADDHT(int hscode)
     HT[hscode] = ptr;
 }
 
-int main()
+/*
+void ReadID()
 {
-    int i;
-    PrintHeading(); //header í”„ë¦°íŠ¸
-    initialize(); //txtíŒŒì¼ì—ì„œ í•œ ê¸€ìë¥¼ input ë³€ìˆ˜ì— ë„£ìŒ
+    int flag = 0;
 
-    while (input != EOF)
-    {
-        error = noerror;
-        //wordì˜ ì²˜ìŒì´ ìˆ«ì/ë¬¸ì¥ì¼ ë•Œê¹Œì§€ ë°˜ë³µ
-        SkipSeperators(); //wordì˜ ì²˜ìŒì´ êµ¬ë¶„ìë©´, skip. ì˜ëª»ëœ êµ¬ë¶„ìë©´, error.
-        //ì¸ìë¡œ ë“¤ì–´ê°ˆ ìˆ˜ ìˆëŠ” inputì€ ë¬¸ì/ìˆ«ìë§Œ ê°€ëŠ¥
-        ReadID(); //êµ¬ë¶„ì(ì˜ëª»ëœ êµ¬ë¶„ì í¬í•¨)ê°€ ë‚˜ì˜¤ê¸° ì „ê¹Œì§€ ë¬¸ì/ìˆ«ìë¡œ ì´ë£¨ì–´ì§„ wordë¥¼ STí…Œì´ë¸”ì— ì €ì¥
+    nextid = nextSTfree;
 
-        //STì— ë„£ì€ wordë¥¼ HTì— ë°°ì¹˜
-        if (error != illid && error != wrongid) {
-            //nestSTfreeëŠ” ê°’ì„ ë„£ì€ í›„ì— ++ë˜ë¯€ë¡œ, ++ëœ ì´í›„ì— í•œë²ˆë„ overflowê²€ì‚¬ë¥¼ ì§„í–‰í•˜ì§€ ì•Šì•˜ê¸°ë•Œë¬¸ì— í•œë²ˆ ë” ê²€ì‚¬
-            if (nextSTfree == STsize) {
-                error = overst;
-                PrintError(error); //overflowë˜ë©´ ì¢…ë£Œ
-            }
-
-            ComputeHS(nextid, nextSTfree);
-            LookupHS(nextid, hashcode);
-
-            if (nextSTfree - nextid - 1 > 10) {
-                error = illlen;
-                PrintError(error);
-                nextSTfree = nextid;
-            }
-            else if (!found) {
-                printf("%6d              ", nextid);
-                PrintID();
-                printf("       (entered)\n");
-                ADDHT(hashcode);
-            }
-            else {
-                printf("%6d              ", sameid);
-                PrintID();
-                printf("       (already existed)\n");
-                nextSTfree = nextid;
-            }
-        }
-        SkipSeperators();
+    if (isDigit(input)) {    //¼ıÀÚ·Î ½ÃÀÛÇÏ´Â °æ¿ì
+        error = illid;
     }
 
+    while (input != EOF && (isLetter(input) || isDigit(input))) {  //¼ıÀÚ, ¹®ÀÚÀÎ °æ¿ì
+        if (nextSTfree == STsize) {  //String TableÀÌ ²ËÂù °æ¿ì
+            error = overst;
+            PrintError(error);
+        }
+        //¿À¹öÇÃ·Î¿ì°¡ ¾Æ´Ï¸é
+        ST[nextSTfree++] = input;
+        input = fgetc(fp); //´ÙÀ½ ±ÛÀÚ ÀĞ¾î¼­ ±¸ºĞÀÚ ³ª¿Ã ¶§±îÁö ¹İº¹
+
+        //¹®Àå ³¡ÀÌ ¾Æ´Ï°í ±¸ºĞÀÚ/¹®ÀÚ/¼ıÀÚ°¡ ¾Æ´Ï¶ó¸é
+        while (input != EOF && !(isSeperator(input) || isLetter(input) || isDigit(input))) {
+            flag = 1;
+            ST[nextSTfree++] = input; //ST¹è¿­¿¡ input ³Ö°í
+            input = fgetc(fp); //±¸ºĞÀÚ/¹®ÀÚ/¼ıÀÚ ³ª¿Ã ¶§±îÁö ¹İº¹
+        }
+    }
+    if (flag == 1 && error != illid) {
+        error = illchar; //Àß¸øµÈ ÀÎÀÚÀÓ
+    }
+    //ÇÏ³ªÀÇ word¸¦ ÀÔ·ÂÇÏ¸é ÀÚµ¿À¸·Î °ø¹é ÀúÀå
+    ST[nextSTfree++] = '\0';
+
+    PrintError(error);
+}*/
+
+void PrintHStable()
+{
+    int i, j;   //i = hash table ¹è¿­ Å½»ö, j = hash code°¡ °°Àº ¿¬°á¸®½ºÆ® Å½»ö
+    HTpointer here;
+
+    printf("\n\n\n\n\n [[ HASH TABLE ]] \n\n");
+
+    for (i = 0; i < HTsize; i++) {  //Hash TableÀÇ ¸ğµç ¿ä¼Ò Å½»ö
+        if (HT[i] != NULL) {  //NULLÀÌ ¾Æ´Ñ °æ¿ì¿¡¸¸ Ãâ·Â
+            printf("  Hash Code %3d :", i);
+            for (here = HT[i]; here != NULL; here = here->next) {
+                j = here->index;
+                while (ST[j] != '\0' && j < STsize)
+                    printf("%c", ST[j++]);
+                printf("     ");
+            }
+            printf("\n");
+        }
+    }
+    printf("\n\n\n < %5d characters are used in the string table >\n", nextSTfree);
+    printf("\n±èÁöÀ±(2076096), ±è¿ø¿ì(2076073), ±èµµ¿¬(2076033), ÇÏÀ±Áö(2071051)\n");
+}
+
+/* mainÇÔ¼ö : yylex·Î EOF ¸¸³¯ ¶§±îÁö ÅäÅ« ÀĞ¾î¿À±â ¸¶Áö¸·¿¡ ÀüÃ¼ ¿¡·¯ °³¼ö Ãâ·Â*/
+void main()
+{
+    nextid = 0;
+    nextSTfree = 0;
+    cErrors = 0;
+    line = 1;
+
+    int tn;  // token number
+ //   enum errorTypes error;
+
+ //   printf("Line number\tToken type\tST-index\tToken\n");
+ //   while ((tn = yylex()) != TEOF) {
+ //       printtoken(tn);
+  //  }
+    printf("***MiniC parsing begins\n");
+    yyparse();
+    printf("Parsing ends.***\n");
+
+    if (cErrors == 0) printf("No errors detected");
+    else printf("%d errors detected\n", cErrors);
     PrintHStable();
+    printf("\n\n");
+
 }
