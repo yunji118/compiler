@@ -16,31 +16,23 @@
 
 typedef struct HTentry* HTpointer;
 typedef struct HTentry {
-    int index;  //index of identifier in ST
     HTpointer next;  //pointer to next identifier
     char name[Strsize];
-    int type_void;
-    int type_int;
-    int type_char;
-    int type_const;
-    int type_string;
+    int index;
+    int type;
     int line;
-    int isArray;
-    int isFunc;
-    int isParam;
-    int hscode;
 }HTentry;
 
 enum errorTypes { noerror, illsp, illid, overst, illlen, illchar };
 
 HTpointer HT[HTsize];
+HTpointer look_id;
+HTpointer look_tmp;
+
 char ST[STsize];
-char string[Strsize];
+char identifier[Strsize];
 
 int nextid;
 int nextSTfree;
-int line;
+int cLine;
 int cErrors;
-//char name[Strsize];
-//char param[Strsize];
-//char ret_type[Strsize];

@@ -1,9 +1,10 @@
 Terminals which are not used
 
-   TCOMMENT
-   TSEPERATOR
-   TLINE
-   TILLID
+   TILLSP
+   TOVERE
+   TONECMT
+   TMULCMT
+   TERROR
 
 
 Grammar
@@ -19,294 +20,332 @@ Grammar
     5             | declaration
 
     6 function_def: function_header compound_st
+    7             | function_header TSEMI
+    8             | function_header error
 
-    7 function_header: dcl_spec function_name formal_param
+    9 function_header: dcl_spec function_name formal_param
 
-    8 dcl_spec: dcl_specifiers
+   10 dcl_spec: dcl_specifiers
 
-    9 dcl_specifiers: dcl_specifier
-   10               | dcl_specifiers dcl_specifier
+   11 dcl_specifiers: dcl_specifier
+   12               | dcl_specifiers dcl_specifier
 
-   11 dcl_specifier: type_qualifier
-   12              | type_specifier
+   13 dcl_specifier: type_qualifier
+   14              | type_specifier
 
-   13 type_qualifier: TCONST
+   15 type_qualifier: TCONST
 
-   14 type_specifier: TINT
-   15               | TVOID
+   16 type_specifier: TINT
+   17               | TVOID
+   18               | TFLOAT
 
-   16 function_name: TIDENT
-   17              | /* empty */
+   19 function_name: TIDENT
+   20              | TILLIDENT
+   21              | TLONG
 
-   18 formal_param: TLSBRACKET opt_formal_param TRSBRACKET
-   19             | TLSBRACKET opt_formal_param error
+   22 formal_param: TOSBRA opt_formal_param TCSBRA
 
-   20 opt_formal_param: formal_param_list
-   21                 | /* empty */
+   23 opt_formal_param: formal_param_list
+   24                 | /* empty */
 
-   22 formal_param_list: param_dcl
-   23                  | formal_param_list TCOMMA param_dcl
+   25 formal_param_list: param_dcl
+   26                  | formal_param_list TCOMMA param_dcl
+   27                  | formal_param_list error param_dcl
 
-   24 param_dcl: dcl_spec declarator
+   28 param_dcl: dcl_spec declarator
 
-   25 compound_st: TLMBRACKET opt_dcl_list opt_stat_list TRMBRACKET
-   26            | TLMBRACKET opt_dcl_list opt_stat_list error
+   29 compound_st: TOMBRA opt_dcl_list opt_stat_list TCMBRA
+   30            | TOMBRA opt_dcl_list opt_stat_list error
 
-   27 opt_dcl_list: declaration_list
-   28             | /* empty */
+   31 opt_dcl_list: declaration_list
+   32             | /* empty */
 
-   29 declaration_list: declaration
-   30                 | declaration_list declaration
+   33 declaration_list: declaration
+   34                 | declaration_list declaration
 
-   31 declaration: dcl_spec init_dcl_list TSEMICOLON
-   32            | dcl_spec init_dcl_list error
+   35 declaration: dcl_spec init_dcl_list TSEMI
+   36            | dcl_spec init_dcl_list error
 
-   33 init_dcl_list: init_declarator
-   34              | init_dcl_list TCOMMA init_declarator
-   35              | init_dcl_list init_declarator error
+   37 init_dcl_list: init_declarator
+   38              | init_dcl_list TCOMMA init_declarator
 
-   36 init_declarator: declarator
-   37                | declarator TASSIGN TNUMBER
+   39 init_declarator: declarator
+   40                | declarator TASSIGN TNUMBER
+   41                | declarator TASSIGN TPOINT
+   42                | declarator TASSIGN error
 
-   38 declarator: TIDENT
-   39           | TIDENT TLLBRACKET opt_number TRLBRACKET
-   40           | TIDENT TLLBRACKET opt_number error
+   43 declarator: TIDENT
+   44           | TIDENT TOLBRA opt_number TCLBRA
+   45           | TIDENT TOLBRA opt_number error
+   46           | TILLIDENT
+   47           | TLONG
 
-   41 opt_number: TNUMBER
-   42           | /* empty */
+   48 opt_number: TNUMBER
+   49           | TPOINT
+   50           | /* empty */
 
-   43 opt_stat_list: statement_list
-   44              | /* empty */
+   51 opt_stat_list: statement_list
+   52              | /* empty */
 
-   45 statement_list: statement
-   46               | statement_list statement
+   53 statement_list: statement
+   54               | statement_list statement
+   55               | statement_list declaration
 
-   47 statement: compound_st
-   48          | expression_st
-   49          | if_st
-   50          | while_st
-   51          | return_st
+   56 statement: compound_st
+   57          | expression_st
+   58          | if_st
+   59          | while_st
+   60          | return_st
 
-   52 expression_st: opt_expression TSEMICOLON
+   61 expression_st: opt_expression TSEMI
+   62              | expression error
 
-   53 opt_expression: expression
-   54               | /* empty */
+   63 opt_expression: expression
+   64               | /* empty */
 
-   55 if_st: TIF TLSBRACKET expression TRSBRACKET statement
-   56      | TIF TLSBRACKET expression TRSBRACKET statement TELSE statement
-   57      | TIF TLSBRACKET expression error
+   65 if_st: TIF TOSBRA expression TCSBRA statement
+   66      | TIF TOSBRA expression TCSBRA statement TELSE statement
+   67      | TIF TOSBRA expression error
 
-   58 while_st: TWHILE TLSBRACKET expression TRSBRACKET statement
-   59         | TWHILE TLSBRACKET expression error
+   68 while_st: TWHILE TOSBRA expression TCSBRA statement
+   69         | TWHILE TOSBRA expression error
 
-   60 return_st: TRETURN opt_expression TSEMICOLON
+   70 return_st: TRETURN opt_expression TSEMI
+   71          | TRETURN opt_expression error
 
-   61 expression: assignment_exp
+   72 expression: assignment_exp
 
-   62 assignment_exp: logical_or_exp
-   63               | unary_exp TASSIGN assignment_exp
-   64               | unary_exp TADDASSIGN assignment_exp
-   65               | unary_exp TSUBASSIGN assignment_exp
-   66               | unary_exp TMULASSIGN assignment_exp
-   67               | unary_exp TDIVASSIGN assignment_exp
-   68               | unary_exp TMODASSIGN assignment_exp
+   73 assignment_exp: logical_or_exp
+   74               | unary_exp TASSIGN assignment_exp
+   75               | unary_exp TADDASSIGN assignment_exp
+   76               | unary_exp TSUBASSIGN assignment_exp
+   77               | unary_exp TMULASSIGN assignment_exp
+   78               | unary_exp TDIVASSIGN assignment_exp
+   79               | unary_exp TMODASSIGN assignment_exp
+   80               | unary_exp TASSIGN error
+   81               | unary_exp TADDASSIGN error
+   82               | unary_exp TSUBASSIGN error
+   83               | unary_exp TMULASSIGN error
+   84               | unary_exp TDIVASSIGN error
+   85               | unary_exp TMODASSIGN error
 
-   69 logical_or_exp: logical_and_exp
-   70               | logical_or_exp TOR logical_and_exp
+   86 logical_or_exp: logical_and_exp
+   87               | logical_or_exp TOR logical_and_exp
+   88               | logical_or_exp TOR error
 
-   71 logical_and_exp: equality_exp
-   72                | logical_and_exp TAND equality_exp
+   89 logical_and_exp: equality_exp
+   90                | logical_and_exp TAND equality_exp
+   91                | logical_and_exp TAND error
 
-   73 equality_exp: relational_exp
-   74             | equality_exp TEQUAL relational_exp
-   75             | equality_exp TNOTEQU relational_exp
+   92 equality_exp: relational_exp
+   93             | equality_exp TEQUAL relational_exp
+   94             | equality_exp TNOTEQU relational_exp
+   95             | equality_exp TEQUAL error
+   96             | equality_exp TNOTEQU error
 
-   76 relational_exp: additive_exp
-   77               | relational_exp TGREAT additive_exp
-   78               | relational_exp TLESS additive_exp
-   79               | relational_exp TGREATE additive_exp
-   80               | relational_exp TLESSE additive_exp
+   97 relational_exp: additive_exp
+   98               | relational_exp TOVER additive_exp
+   99               | relational_exp TLESS additive_exp
+  100               | relational_exp TGREATE additive_exp
+  101               | relational_exp TLESSE additive_exp
+  102               | relational_exp TOVER
+  103               | relational_exp TLESS
+  104               | relational_exp TGREATE
+  105               | relational_exp TLESSE
 
-   81 additive_exp: multiplicative_exp
-   82             | additive_exp TPLUS multiplicative_exp
-   83             | additive_exp TMINUS multiplicative_exp
+  106 additive_exp: multiplicative_exp
+  107             | additive_exp TPLUS multiplicative_exp
+  108             | additive_exp TPLUS error
+  109             | additive_exp TMINUS
 
-   84 multiplicative_exp: unary_exp
-   85                   | multiplicative_exp TSTAR unary_exp
-   86                   | multiplicative_exp TSLASH unary_exp
-   87                   | multiplicative_exp TMOD unary_exp
+  110 multiplicative_exp: unary_exp
+  111                   | multiplicative_exp TSTAR unary_exp
+  112                   | multiplicative_exp TSLASH unary_exp
+  113                   | multiplicative_exp TMOD unary_exp
+  114                   | multiplicative_exp TSTAR error
+  115                   | multiplicative_exp TSLASH error
+  116                   | multiplicative_exp TMOD error
 
-   88 unary_exp: postfix_exp
-   89          | TMINUS unary_exp
-   90          | TNOT unary_exp
-   91          | TINC unary_exp
-   92          | TDEC unary_exp
+  117 unary_exp: postfix_exp
+  118          | TMINUS unary_exp
+  119          | TNOT unary_exp
+  120          | TINC unary_exp
+  121          | TDEC unary_exp
 
-   93 postfix_exp: primary_exp
-   94            | postfix_exp TLLBRACKET expression TRLBRACKET
-   95            | postfix_exp TLSBRACKET opt_actual_param TRSBRACKET
-   96            | postfix_exp TINC
-   97            | postfix_exp TDEC
+  122 postfix_exp: primary_exp
+  123            | postfix_exp TOLBRA expression TCLBRA
+  124            | postfix_exp TOSBRA opt_actual_param TCSBRA
+  125            | postfix_exp TINC
+  126            | postfix_exp TDEC
 
-   98 opt_actual_param: actual_param
-   99                 | /* empty */
+  127 opt_actual_param: actual_param
+  128                 | /* empty */
 
-  100 actual_param: actual_param_list
+  129 actual_param: actual_param_list
 
-  101 actual_param_list: assignment_exp
-  102                  | actual_param_list TCOMMA assignment_exp
+  130 actual_param_list: assignment_exp
+  131                  | actual_param_list TCOMMA assignment_exp
 
-  103 primary_exp: TIDENT
-  104            | TNUMBER
-  105            | TLSBRACKET expression TRSBRACKET
+  132 primary_exp: TIDENT
+  133            | TNUMBER
+  134            | TPOINT
+  135            | TOSBRA expression TCSBRA
 
 
 Terminals, with rules where they appear
 
 $end (0) 0
-error (256) 19 26 32 35 40 57 59
-TLOWERTHANELSE (258)
-TELSE (259) 56
-TIDENT (260) 16 38 39 40 103
-TNUMBER (261) 37 41 104
-TCONST (262) 13
-TIF (263) 55 56 57
-TINT (264) 14
-TRETURN (265) 60
-TVOID (266) 15
-TWHILE (267) 58 59
-TADDASSIGN (268) 64
-TSUBASSIGN (269) 65
-TMULASSIGN (270) 66
-TDIVASSIGN (271) 67
-TMODASSIGN (272) 68
-TOR (273) 70
-TAND (274) 72
-TEQUAL (275) 74
-TNOTEQU (276) 75
-TGREATE (277) 79
-TLESSE (278) 80
-TINC (279) 91 96
-TDEC (280) 92 97
-TPLUS (281) 82
-TMINUS (282) 83 89
-TSTAR (283) 85
-TSLASH (284) 86
-TMOD (285) 87
-TASSIGN (286) 37 63
-TNOT (287) 90
-TLESS (288) 78
-TGREAT (289) 77
-TLSBRACKET (290) 18 19 55 56 57 58 59 95 105
-TRSBRACKET (291) 18 55 56 58 95 105
-TCOMMA (292) 23 34 102
-TLMBRACKET (293) 25 26
-TRMBRACKET (294) 25
-TLLBRACKET (295) 39 40 94
-TRLBRACKET (296) 39 94
-TSEMICOLON (297) 31 52 60
-TCOMMENT (298)
-TSEPERATOR (299)
-TLINE (300)
-TILLID (301)
+error (256) 8 27 30 36 42 45 62 67 69 71 80 81 82 83 84 85 88 91 95
+    96 108 114 115 116
+TCONST (258) 15
+TELSE (259) 66
+TIF (260) 65 66 67
+TINT (261) 16
+TRETURN (262) 70 71
+TVOID (263) 17
+TWHILE (264) 68 69
+TPOINT (265) 41 49 134
+TILLSP (266)
+TPLUS (267) 107 108
+TMINUS (268) 109 118
+TSTAR (269) 111 114
+TSLASH (270) 112 115
+TMOD (271) 113 116
+TASSIGN (272) 40 41 42 74 80
+TADDASSIGN (273) 75 81
+TSUBASSIGN (274) 76 82
+TMULASSIGN (275) 77 83
+TDIVASSIGN (276) 78 84
+TMODASSIGN (277) 79 85
+TOR (278) 87 88
+TEQUAL (279) 93 95
+TNOTEQU (280) 94 96
+TLESS (281) 99 103
+TOVER (282) 98 102
+TLESSE (283) 101 105
+TINC (284) 120 125
+TDEC (285) 121 126
+TOSBRA (286) 22 65 66 67 68 69 124 135
+TCSBRA (287) 22 65 66 68 124 135
+TCOMMA (288) 26 38 131
+TOMBRA (289) 29 30
+TCMBRA (290) 29
+TOLBRA (291) 44 45 123
+TCLBRA (292) 44 123
+TSEMI (293) 7 35 61 70
+TNUMBER (294) 40 48 133
+TFLOAT (295) 18
+TLONG (296) 21 47
+TNOT (297) 119
+TAND (298) 90 91
+TOVERE (299)
+TILLIDENT (300) 20 46
+TONECMT (301)
+TMULCMT (302)
+TERROR (303)
+TIDENT (304) 19 43 44 45 132
+TGREATE (305) 100 104
+LOWER_THAN_ELSE (306)
 
 
 Nonterminals, with rules where they appear
 
-$accept (47)
+$accept (52)
     on left: 0
-mini_c (48)
+mini_c (53)
     on left: 1, on right: 0
-translation_unit (49)
+translation_unit (54)
     on left: 2 3, on right: 1 3
-external_dcl (50)
+external_dcl (55)
     on left: 4 5, on right: 2 3
-function_def (51)
-    on left: 6, on right: 4
-function_header (52)
-    on left: 7, on right: 6
-dcl_spec (53)
-    on left: 8, on right: 7 24 31 32
-dcl_specifiers (54)
-    on left: 9 10, on right: 8 10
-dcl_specifier (55)
-    on left: 11 12, on right: 9 10
-type_qualifier (56)
-    on left: 13, on right: 11
-type_specifier (57)
-    on left: 14 15, on right: 12
-function_name (58)
-    on left: 16 17, on right: 7
-formal_param (59)
-    on left: 18 19, on right: 7
-opt_formal_param (60)
-    on left: 20 21, on right: 18 19
-formal_param_list (61)
-    on left: 22 23, on right: 20 23
-param_dcl (62)
-    on left: 24, on right: 22 23
-compound_st (63)
-    on left: 25 26, on right: 6 47
-opt_dcl_list (64)
-    on left: 27 28, on right: 25 26
-declaration_list (65)
-    on left: 29 30, on right: 27 30
-declaration (66)
-    on left: 31 32, on right: 5 29 30
-init_dcl_list (67)
-    on left: 33 34 35, on right: 31 32 34 35
-init_declarator (68)
-    on left: 36 37, on right: 33 34 35
-declarator (69)
-    on left: 38 39 40, on right: 24 36 37
-opt_number (70)
-    on left: 41 42, on right: 39 40
-opt_stat_list (71)
-    on left: 43 44, on right: 25 26
-statement_list (72)
-    on left: 45 46, on right: 43 46
-statement (73)
-    on left: 47 48 49 50 51, on right: 45 46 55 56 58
-expression_st (74)
-    on left: 52, on right: 48
-opt_expression (75)
-    on left: 53 54, on right: 52 60
-if_st (76)
-    on left: 55 56 57, on right: 49
-while_st (77)
-    on left: 58 59, on right: 50
-return_st (78)
-    on left: 60, on right: 51
-expression (79)
-    on left: 61, on right: 53 55 56 57 58 59 94 105
-assignment_exp (80)
-    on left: 62 63 64 65 66 67 68, on right: 61 63 64 65 66 67 68 101
-    102
-logical_or_exp (81)
-    on left: 69 70, on right: 62 70
-logical_and_exp (82)
-    on left: 71 72, on right: 69 70 72
-equality_exp (83)
-    on left: 73 74 75, on right: 71 72 74 75
-relational_exp (84)
-    on left: 76 77 78 79 80, on right: 73 74 75 77 78 79 80
-additive_exp (85)
-    on left: 81 82 83, on right: 76 77 78 79 80 82 83
-multiplicative_exp (86)
-    on left: 84 85 86 87, on right: 81 82 83 85 86 87
-unary_exp (87)
-    on left: 88 89 90 91 92, on right: 63 64 65 66 67 68 84 85 86 87
-    89 90 91 92
-postfix_exp (88)
-    on left: 93 94 95 96 97, on right: 88 94 95 96 97
-opt_actual_param (89)
-    on left: 98 99, on right: 95
-actual_param (90)
-    on left: 100, on right: 98
-actual_param_list (91)
-    on left: 101 102, on right: 100 102
-primary_exp (92)
-    on left: 103 104 105, on right: 93
+function_def (56)
+    on left: 6 7 8, on right: 4
+function_header (57)
+    on left: 9, on right: 6 7 8
+dcl_spec (58)
+    on left: 10, on right: 9 28 35 36
+dcl_specifiers (59)
+    on left: 11 12, on right: 10 12
+dcl_specifier (60)
+    on left: 13 14, on right: 11 12
+type_qualifier (61)
+    on left: 15, on right: 13
+type_specifier (62)
+    on left: 16 17 18, on right: 14
+function_name (63)
+    on left: 19 20 21, on right: 9
+formal_param (64)
+    on left: 22, on right: 9
+opt_formal_param (65)
+    on left: 23 24, on right: 22
+formal_param_list (66)
+    on left: 25 26 27, on right: 23 26 27
+param_dcl (67)
+    on left: 28, on right: 25 26 27
+compound_st (68)
+    on left: 29 30, on right: 6 56
+opt_dcl_list (69)
+    on left: 31 32, on right: 29 30
+declaration_list (70)
+    on left: 33 34, on right: 31 34
+declaration (71)
+    on left: 35 36, on right: 5 33 34 55
+init_dcl_list (72)
+    on left: 37 38, on right: 35 36 38
+init_declarator (73)
+    on left: 39 40 41 42, on right: 37 38
+declarator (74)
+    on left: 43 44 45 46 47, on right: 28 39 40 41 42
+opt_number (75)
+    on left: 48 49 50, on right: 44 45
+opt_stat_list (76)
+    on left: 51 52, on right: 29 30
+statement_list (77)
+    on left: 53 54 55, on right: 51 54 55
+statement (78)
+    on left: 56 57 58 59 60, on right: 53 54 65 66 68
+expression_st (79)
+    on left: 61 62, on right: 57
+opt_expression (80)
+    on left: 63 64, on right: 61 70 71
+if_st (81)
+    on left: 65 66 67, on right: 58
+while_st (82)
+    on left: 68 69, on right: 59
+return_st (83)
+    on left: 70 71, on right: 60
+expression (84)
+    on left: 72, on right: 62 63 65 66 67 68 69 123 135
+assignment_exp (85)
+    on left: 73 74 75 76 77 78 79 80 81 82 83 84 85,
+    on right: 72 74 75 76 77 78 79 130 131
+logical_or_exp (86)
+    on left: 86 87 88, on right: 73 87 88
+logical_and_exp (87)
+    on left: 89 90 91, on right: 86 87 90 91
+equality_exp (88)
+    on left: 92 93 94 95 96, on right: 89 90 93 94 95 96
+relational_exp (89)
+    on left: 97 98 99 100 101 102 103 104 105, on right: 92 93 94 98
+    99 100 101 102 103 104 105
+additive_exp (90)
+    on left: 106 107 108 109, on right: 97 98 99 100 101 107 108 109
+multiplicative_exp (91)
+    on left: 110 111 112 113 114 115 116, on right: 106 107 111 112
+    113 114 115 116
+unary_exp (92)
+    on left: 117 118 119 120 121, on right: 74 75 76 77 78 79 80 81
+    82 83 84 85 110 111 112 113 118 119 120 121
+postfix_exp (93)
+    on left: 122 123 124 125 126, on right: 117 123 124 125 126
+opt_actual_param (94)
+    on left: 127 128, on right: 124
+actual_param (95)
+    on left: 129, on right: 127
+actual_param_list (96)
+    on left: 130 131, on right: 129 131
+primary_exp (97)
+    on left: 132 133 134 135, on right: 122
 
 
 state 0
@@ -316,49 +355,57 @@ state 0
     TCONST  shift, and go to state 1
     TINT    shift, and go to state 2
     TVOID   shift, and go to state 3
+    TFLOAT  shift, and go to state 4
 
-    mini_c            go to state 4
-    translation_unit  go to state 5
-    external_dcl      go to state 6
-    function_def      go to state 7
-    function_header   go to state 8
-    dcl_spec          go to state 9
-    dcl_specifiers    go to state 10
-    dcl_specifier     go to state 11
-    type_qualifier    go to state 12
-    type_specifier    go to state 13
-    declaration       go to state 14
+    mini_c            go to state 5
+    translation_unit  go to state 6
+    external_dcl      go to state 7
+    function_def      go to state 8
+    function_header   go to state 9
+    dcl_spec          go to state 10
+    dcl_specifiers    go to state 11
+    dcl_specifier     go to state 12
+    type_qualifier    go to state 13
+    type_specifier    go to state 14
+    declaration       go to state 15
 
 
 state 1
 
-   13 type_qualifier: TCONST .
+   15 type_qualifier: TCONST .
 
-    $default  reduce using rule 13 (type_qualifier)
+    $default  reduce using rule 15 (type_qualifier)
 
 
 state 2
 
-   14 type_specifier: TINT .
+   16 type_specifier: TINT .
 
-    $default  reduce using rule 14 (type_specifier)
+    $default  reduce using rule 16 (type_specifier)
 
 
 state 3
 
-   15 type_specifier: TVOID .
+   17 type_specifier: TVOID .
 
-    $default  reduce using rule 15 (type_specifier)
+    $default  reduce using rule 17 (type_specifier)
 
 
 state 4
 
-    0 $accept: mini_c . $end
+   18 type_specifier: TFLOAT .
 
-    $end  shift, and go to state 15
+    $default  reduce using rule 18 (type_specifier)
 
 
 state 5
+
+    0 $accept: mini_c . $end
+
+    $end  shift, and go to state 16
+
+
+state 6
 
     1 mini_c: translation_unit .
     3 translation_unit: translation_unit . external_dcl
@@ -366,1939 +413,2261 @@ state 5
     TCONST  shift, and go to state 1
     TINT    shift, and go to state 2
     TVOID   shift, and go to state 3
+    TFLOAT  shift, and go to state 4
 
     $default  reduce using rule 1 (mini_c)
 
-    external_dcl     go to state 16
-    function_def     go to state 7
-    function_header  go to state 8
-    dcl_spec         go to state 9
-    dcl_specifiers   go to state 10
-    dcl_specifier    go to state 11
-    type_qualifier   go to state 12
-    type_specifier   go to state 13
-    declaration      go to state 14
+    external_dcl     go to state 17
+    function_def     go to state 8
+    function_header  go to state 9
+    dcl_spec         go to state 10
+    dcl_specifiers   go to state 11
+    dcl_specifier    go to state 12
+    type_qualifier   go to state 13
+    type_specifier   go to state 14
+    declaration      go to state 15
 
 
-state 6
+state 7
 
     2 translation_unit: external_dcl .
 
     $default  reduce using rule 2 (translation_unit)
 
 
-state 7
+state 8
 
     4 external_dcl: function_def .
 
     $default  reduce using rule 4 (external_dcl)
 
 
-state 8
-
-    6 function_def: function_header . compound_st
-
-    TLMBRACKET  shift, and go to state 17
-
-    compound_st  go to state 18
-
-
 state 9
 
-    7 function_header: dcl_spec . function_name formal_param
-   31 declaration: dcl_spec . init_dcl_list TSEMICOLON
-   32            | dcl_spec . init_dcl_list error
+    6 function_def: function_header . compound_st
+    7             | function_header . TSEMI
+    8             | function_header . error
 
-    TIDENT  shift, and go to state 19
+    error   shift, and go to state 18
+    TOMBRA  shift, and go to state 19
+    TSEMI   shift, and go to state 20
 
-    $default  reduce using rule 17 (function_name)
-
-    function_name    go to state 20
-    init_dcl_list    go to state 21
-    init_declarator  go to state 22
-    declarator       go to state 23
+    compound_st  go to state 21
 
 
 state 10
 
-    8 dcl_spec: dcl_specifiers .
-   10 dcl_specifiers: dcl_specifiers . dcl_specifier
+    9 function_header: dcl_spec . function_name formal_param
+   35 declaration: dcl_spec . init_dcl_list TSEMI
+   36            | dcl_spec . init_dcl_list error
 
-    TCONST  shift, and go to state 1
-    TINT    shift, and go to state 2
-    TVOID   shift, and go to state 3
+    TLONG      shift, and go to state 22
+    TILLIDENT  shift, and go to state 23
+    TIDENT     shift, and go to state 24
 
-    $default  reduce using rule 8 (dcl_spec)
-
-    dcl_specifier   go to state 24
-    type_qualifier  go to state 12
-    type_specifier  go to state 13
+    function_name    go to state 25
+    init_dcl_list    go to state 26
+    init_declarator  go to state 27
+    declarator       go to state 28
 
 
 state 11
 
-    9 dcl_specifiers: dcl_specifier .
+   10 dcl_spec: dcl_specifiers .
+   12 dcl_specifiers: dcl_specifiers . dcl_specifier
 
-    $default  reduce using rule 9 (dcl_specifiers)
+    TCONST  shift, and go to state 1
+    TINT    shift, and go to state 2
+    TVOID   shift, and go to state 3
+    TFLOAT  shift, and go to state 4
+
+    $default  reduce using rule 10 (dcl_spec)
+
+    dcl_specifier   go to state 29
+    type_qualifier  go to state 13
+    type_specifier  go to state 14
 
 
 state 12
 
-   11 dcl_specifier: type_qualifier .
+   11 dcl_specifiers: dcl_specifier .
 
-    $default  reduce using rule 11 (dcl_specifier)
+    $default  reduce using rule 11 (dcl_specifiers)
 
 
 state 13
 
-   12 dcl_specifier: type_specifier .
+   13 dcl_specifier: type_qualifier .
 
-    $default  reduce using rule 12 (dcl_specifier)
+    $default  reduce using rule 13 (dcl_specifier)
 
 
 state 14
+
+   14 dcl_specifier: type_specifier .
+
+    $default  reduce using rule 14 (dcl_specifier)
+
+
+state 15
 
     5 external_dcl: declaration .
 
     $default  reduce using rule 5 (external_dcl)
 
 
-state 15
+state 16
 
     0 $accept: mini_c $end .
 
     $default  accept
 
 
-state 16
+state 17
 
     3 translation_unit: translation_unit external_dcl .
 
     $default  reduce using rule 3 (translation_unit)
 
 
-state 17
+state 18
 
-   25 compound_st: TLMBRACKET . opt_dcl_list opt_stat_list TRMBRACKET
-   26            | TLMBRACKET . opt_dcl_list opt_stat_list error
+    8 function_def: function_header error .
+
+    $default  reduce using rule 8 (function_def)
+
+
+state 19
+
+   29 compound_st: TOMBRA . opt_dcl_list opt_stat_list TCMBRA
+   30            | TOMBRA . opt_dcl_list opt_stat_list error
 
     TCONST  shift, and go to state 1
     TINT    shift, and go to state 2
     TVOID   shift, and go to state 3
+    TFLOAT  shift, and go to state 4
 
-    $default  reduce using rule 28 (opt_dcl_list)
+    $default  reduce using rule 32 (opt_dcl_list)
 
-    dcl_spec          go to state 25
-    dcl_specifiers    go to state 10
-    dcl_specifier     go to state 11
-    type_qualifier    go to state 12
-    type_specifier    go to state 13
-    opt_dcl_list      go to state 26
-    declaration_list  go to state 27
-    declaration       go to state 28
+    dcl_spec          go to state 30
+    dcl_specifiers    go to state 11
+    dcl_specifier     go to state 12
+    type_qualifier    go to state 13
+    type_specifier    go to state 14
+    opt_dcl_list      go to state 31
+    declaration_list  go to state 32
+    declaration       go to state 33
 
 
-state 18
+state 20
+
+    7 function_def: function_header TSEMI .
+
+    $default  reduce using rule 7 (function_def)
+
+
+state 21
 
     6 function_def: function_header compound_st .
 
     $default  reduce using rule 6 (function_def)
 
 
-state 19
-
-   16 function_name: TIDENT .
-   38 declarator: TIDENT .
-   39           | TIDENT . TLLBRACKET opt_number TRLBRACKET
-   40           | TIDENT . TLLBRACKET opt_number error
-
-    TLLBRACKET  shift, and go to state 29
-
-    TLSBRACKET  reduce using rule 16 (function_name)
-    $default    reduce using rule 38 (declarator)
-
-
-state 20
-
-    7 function_header: dcl_spec function_name . formal_param
-
-    TLSBRACKET  shift, and go to state 30
-
-    formal_param  go to state 31
-
-
-state 21
-
-   31 declaration: dcl_spec init_dcl_list . TSEMICOLON
-   32            | dcl_spec init_dcl_list . error
-   34 init_dcl_list: init_dcl_list . TCOMMA init_declarator
-   35              | init_dcl_list . init_declarator error
-
-    error       shift, and go to state 32
-    TIDENT      shift, and go to state 33
-    TCOMMA      shift, and go to state 34
-    TSEMICOLON  shift, and go to state 35
-
-    init_declarator  go to state 36
-    declarator       go to state 23
-
-
 state 22
 
-   33 init_dcl_list: init_declarator .
+   21 function_name: TLONG .
+   47 declarator: TLONG .
 
-    $default  reduce using rule 33 (init_dcl_list)
+    TOSBRA    reduce using rule 21 (function_name)
+    $default  reduce using rule 47 (declarator)
 
 
 state 23
 
-   36 init_declarator: declarator .
-   37                | declarator . TASSIGN TNUMBER
+   20 function_name: TILLIDENT .
+   46 declarator: TILLIDENT .
 
-    TASSIGN  shift, and go to state 37
-
-    $default  reduce using rule 36 (init_declarator)
+    TOSBRA    reduce using rule 20 (function_name)
+    $default  reduce using rule 46 (declarator)
 
 
 state 24
 
-   10 dcl_specifiers: dcl_specifiers dcl_specifier .
+   19 function_name: TIDENT .
+   43 declarator: TIDENT .
+   44           | TIDENT . TOLBRA opt_number TCLBRA
+   45           | TIDENT . TOLBRA opt_number error
 
-    $default  reduce using rule 10 (dcl_specifiers)
+    TOLBRA  shift, and go to state 34
+
+    TOSBRA    reduce using rule 19 (function_name)
+    $default  reduce using rule 43 (declarator)
 
 
 state 25
 
-   31 declaration: dcl_spec . init_dcl_list TSEMICOLON
-   32            | dcl_spec . init_dcl_list error
+    9 function_header: dcl_spec function_name . formal_param
 
-    TIDENT  shift, and go to state 33
+    TOSBRA  shift, and go to state 35
 
-    init_dcl_list    go to state 21
-    init_declarator  go to state 22
-    declarator       go to state 23
+    formal_param  go to state 36
 
 
 state 26
 
-   25 compound_st: TLMBRACKET opt_dcl_list . opt_stat_list TRMBRACKET
-   26            | TLMBRACKET opt_dcl_list . opt_stat_list error
+   35 declaration: dcl_spec init_dcl_list . TSEMI
+   36            | dcl_spec init_dcl_list . error
+   38 init_dcl_list: init_dcl_list . TCOMMA init_declarator
 
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TIF         shift, and go to state 40
-    TRETURN     shift, and go to state 41
-    TWHILE      shift, and go to state 42
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-    TLMBRACKET  shift, and go to state 17
-
-    TSEMICOLON  reduce using rule 54 (opt_expression)
-    $default    reduce using rule 44 (opt_stat_list)
-
-    compound_st         go to state 48
-    opt_stat_list       go to state 49
-    statement_list      go to state 50
-    statement           go to state 51
-    expression_st       go to state 52
-    opt_expression      go to state 53
-    if_st               go to state 54
-    while_st            go to state 55
-    return_st           go to state 56
-    expression          go to state 57
-    assignment_exp      go to state 58
-    logical_or_exp      go to state 59
-    logical_and_exp     go to state 60
-    equality_exp        go to state 61
-    relational_exp      go to state 62
-    additive_exp        go to state 63
-    multiplicative_exp  go to state 64
-    unary_exp           go to state 65
-    postfix_exp         go to state 66
-    primary_exp         go to state 67
+    error   shift, and go to state 37
+    TCOMMA  shift, and go to state 38
+    TSEMI   shift, and go to state 39
 
 
 state 27
 
-   27 opt_dcl_list: declaration_list .
-   30 declaration_list: declaration_list . declaration
+   37 init_dcl_list: init_declarator .
 
-    TCONST  shift, and go to state 1
-    TINT    shift, and go to state 2
-    TVOID   shift, and go to state 3
-
-    $default  reduce using rule 27 (opt_dcl_list)
-
-    dcl_spec        go to state 25
-    dcl_specifiers  go to state 10
-    dcl_specifier   go to state 11
-    type_qualifier  go to state 12
-    type_specifier  go to state 13
-    declaration     go to state 68
+    $default  reduce using rule 37 (init_dcl_list)
 
 
 state 28
 
-   29 declaration_list: declaration .
+   39 init_declarator: declarator .
+   40                | declarator . TASSIGN TNUMBER
+   41                | declarator . TASSIGN TPOINT
+   42                | declarator . TASSIGN error
 
-    $default  reduce using rule 29 (declaration_list)
+    TASSIGN  shift, and go to state 40
+
+    $default  reduce using rule 39 (init_declarator)
 
 
 state 29
 
-   39 declarator: TIDENT TLLBRACKET . opt_number TRLBRACKET
-   40           | TIDENT TLLBRACKET . opt_number error
+   12 dcl_specifiers: dcl_specifiers dcl_specifier .
 
-    TNUMBER  shift, and go to state 69
-
-    $default  reduce using rule 42 (opt_number)
-
-    opt_number  go to state 70
+    $default  reduce using rule 12 (dcl_specifiers)
 
 
 state 30
 
-   18 formal_param: TLSBRACKET . opt_formal_param TRSBRACKET
-   19             | TLSBRACKET . opt_formal_param error
+   35 declaration: dcl_spec . init_dcl_list TSEMI
+   36            | dcl_spec . init_dcl_list error
 
-    TCONST  shift, and go to state 1
-    TINT    shift, and go to state 2
-    TVOID   shift, and go to state 3
+    TLONG      shift, and go to state 41
+    TILLIDENT  shift, and go to state 42
+    TIDENT     shift, and go to state 43
 
-    $default  reduce using rule 21 (opt_formal_param)
-
-    dcl_spec           go to state 71
-    dcl_specifiers     go to state 10
-    dcl_specifier      go to state 11
-    type_qualifier     go to state 12
-    type_specifier     go to state 13
-    opt_formal_param   go to state 72
-    formal_param_list  go to state 73
-    param_dcl          go to state 74
+    init_dcl_list    go to state 26
+    init_declarator  go to state 27
+    declarator       go to state 28
 
 
 state 31
 
-    7 function_header: dcl_spec function_name formal_param .
+   29 compound_st: TOMBRA opt_dcl_list . opt_stat_list TCMBRA
+   30            | TOMBRA opt_dcl_list . opt_stat_list error
 
-    $default  reduce using rule 7 (function_header)
+    TIF      shift, and go to state 44
+    TRETURN  shift, and go to state 45
+    TWHILE   shift, and go to state 46
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TOMBRA   shift, and go to state 19
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    TSEMI     reduce using rule 64 (opt_expression)
+    $default  reduce using rule 52 (opt_stat_list)
+
+    compound_st         go to state 55
+    opt_stat_list       go to state 56
+    statement_list      go to state 57
+    statement           go to state 58
+    expression_st       go to state 59
+    opt_expression      go to state 60
+    if_st               go to state 61
+    while_st            go to state 62
+    return_st           go to state 63
+    expression          go to state 64
+    assignment_exp      go to state 65
+    logical_or_exp      go to state 66
+    logical_and_exp     go to state 67
+    equality_exp        go to state 68
+    relational_exp      go to state 69
+    additive_exp        go to state 70
+    multiplicative_exp  go to state 71
+    unary_exp           go to state 72
+    postfix_exp         go to state 73
+    primary_exp         go to state 74
 
 
 state 32
 
-   32 declaration: dcl_spec init_dcl_list error .
-
-    $default  reduce using rule 32 (declaration)
-
-
-state 33
-
-   38 declarator: TIDENT .
-   39           | TIDENT . TLLBRACKET opt_number TRLBRACKET
-   40           | TIDENT . TLLBRACKET opt_number error
-
-    TLLBRACKET  shift, and go to state 29
-
-    $default  reduce using rule 38 (declarator)
-
-
-state 34
-
-   34 init_dcl_list: init_dcl_list TCOMMA . init_declarator
-
-    TIDENT  shift, and go to state 33
-
-    init_declarator  go to state 75
-    declarator       go to state 23
-
-
-state 35
-
-   31 declaration: dcl_spec init_dcl_list TSEMICOLON .
-
-    $default  reduce using rule 31 (declaration)
-
-
-state 36
-
-   35 init_dcl_list: init_dcl_list init_declarator . error
-
-    error  shift, and go to state 76
-
-
-state 37
-
-   37 init_declarator: declarator TASSIGN . TNUMBER
-
-    TNUMBER  shift, and go to state 77
-
-
-state 38
-
-  103 primary_exp: TIDENT .
-
-    $default  reduce using rule 103 (primary_exp)
-
-
-state 39
-
-  104 primary_exp: TNUMBER .
-
-    $default  reduce using rule 104 (primary_exp)
-
-
-state 40
-
-   55 if_st: TIF . TLSBRACKET expression TRSBRACKET statement
-   56      | TIF . TLSBRACKET expression TRSBRACKET statement TELSE statement
-   57      | TIF . TLSBRACKET expression error
-
-    TLSBRACKET  shift, and go to state 78
-
-
-state 41
-
-   60 return_st: TRETURN . opt_expression TSEMICOLON
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    $default  reduce using rule 54 (opt_expression)
-
-    opt_expression      go to state 79
-    expression          go to state 57
-    assignment_exp      go to state 58
-    logical_or_exp      go to state 59
-    logical_and_exp     go to state 60
-    equality_exp        go to state 61
-    relational_exp      go to state 62
-    additive_exp        go to state 63
-    multiplicative_exp  go to state 64
-    unary_exp           go to state 65
-    postfix_exp         go to state 66
-    primary_exp         go to state 67
-
-
-state 42
-
-   58 while_st: TWHILE . TLSBRACKET expression TRSBRACKET statement
-   59         | TWHILE . TLSBRACKET expression error
-
-    TLSBRACKET  shift, and go to state 80
-
-
-state 43
-
-   91 unary_exp: TINC . unary_exp
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    unary_exp    go to state 81
-    postfix_exp  go to state 66
-    primary_exp  go to state 67
-
-
-state 44
-
-   92 unary_exp: TDEC . unary_exp
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    unary_exp    go to state 82
-    postfix_exp  go to state 66
-    primary_exp  go to state 67
-
-
-state 45
-
-   89 unary_exp: TMINUS . unary_exp
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    unary_exp    go to state 83
-    postfix_exp  go to state 66
-    primary_exp  go to state 67
-
-
-state 46
-
-   90 unary_exp: TNOT . unary_exp
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    unary_exp    go to state 84
-    postfix_exp  go to state 66
-    primary_exp  go to state 67
-
-
-state 47
-
-  105 primary_exp: TLSBRACKET . expression TRSBRACKET
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    expression          go to state 85
-    assignment_exp      go to state 58
-    logical_or_exp      go to state 59
-    logical_and_exp     go to state 60
-    equality_exp        go to state 61
-    relational_exp      go to state 62
-    additive_exp        go to state 63
-    multiplicative_exp  go to state 64
-    unary_exp           go to state 65
-    postfix_exp         go to state 66
-    primary_exp         go to state 67
-
-
-state 48
-
-   47 statement: compound_st .
-
-    $default  reduce using rule 47 (statement)
-
-
-state 49
-
-   25 compound_st: TLMBRACKET opt_dcl_list opt_stat_list . TRMBRACKET
-   26            | TLMBRACKET opt_dcl_list opt_stat_list . error
-
-    error       shift, and go to state 86
-    TRMBRACKET  shift, and go to state 87
-
-
-state 50
-
-   43 opt_stat_list: statement_list .
-   46 statement_list: statement_list . statement
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TIF         shift, and go to state 40
-    TRETURN     shift, and go to state 41
-    TWHILE      shift, and go to state 42
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-    TLMBRACKET  shift, and go to state 17
-
-    TSEMICOLON  reduce using rule 54 (opt_expression)
-    $default    reduce using rule 43 (opt_stat_list)
-
-    compound_st         go to state 48
-    statement           go to state 88
-    expression_st       go to state 52
-    opt_expression      go to state 53
-    if_st               go to state 54
-    while_st            go to state 55
-    return_st           go to state 56
-    expression          go to state 57
-    assignment_exp      go to state 58
-    logical_or_exp      go to state 59
-    logical_and_exp     go to state 60
-    equality_exp        go to state 61
-    relational_exp      go to state 62
-    additive_exp        go to state 63
-    multiplicative_exp  go to state 64
-    unary_exp           go to state 65
-    postfix_exp         go to state 66
-    primary_exp         go to state 67
-
-
-state 51
-
-   45 statement_list: statement .
-
-    $default  reduce using rule 45 (statement_list)
-
-
-state 52
-
-   48 statement: expression_st .
-
-    $default  reduce using rule 48 (statement)
-
-
-state 53
-
-   52 expression_st: opt_expression . TSEMICOLON
-
-    TSEMICOLON  shift, and go to state 89
-
-
-state 54
-
-   49 statement: if_st .
-
-    $default  reduce using rule 49 (statement)
-
-
-state 55
-
-   50 statement: while_st .
-
-    $default  reduce using rule 50 (statement)
-
-
-state 56
-
-   51 statement: return_st .
-
-    $default  reduce using rule 51 (statement)
-
-
-state 57
-
-   53 opt_expression: expression .
-
-    $default  reduce using rule 53 (opt_expression)
-
-
-state 58
-
-   61 expression: assignment_exp .
-
-    $default  reduce using rule 61 (expression)
-
-
-state 59
-
-   62 assignment_exp: logical_or_exp .
-   70 logical_or_exp: logical_or_exp . TOR logical_and_exp
-
-    TOR  shift, and go to state 90
-
-    $default  reduce using rule 62 (assignment_exp)
-
-
-state 60
-
-   69 logical_or_exp: logical_and_exp .
-   72 logical_and_exp: logical_and_exp . TAND equality_exp
-
-    TAND  shift, and go to state 91
-
-    $default  reduce using rule 69 (logical_or_exp)
-
-
-state 61
-
-   71 logical_and_exp: equality_exp .
-   74 equality_exp: equality_exp . TEQUAL relational_exp
-   75             | equality_exp . TNOTEQU relational_exp
-
-    TEQUAL   shift, and go to state 92
-    TNOTEQU  shift, and go to state 93
-
-    $default  reduce using rule 71 (logical_and_exp)
-
-
-state 62
-
-   73 equality_exp: relational_exp .
-   77 relational_exp: relational_exp . TGREAT additive_exp
-   78               | relational_exp . TLESS additive_exp
-   79               | relational_exp . TGREATE additive_exp
-   80               | relational_exp . TLESSE additive_exp
-
-    TGREATE  shift, and go to state 94
-    TLESSE   shift, and go to state 95
-    TLESS    shift, and go to state 96
-    TGREAT   shift, and go to state 97
-
-    $default  reduce using rule 73 (equality_exp)
-
-
-state 63
-
-   76 relational_exp: additive_exp .
-   82 additive_exp: additive_exp . TPLUS multiplicative_exp
-   83             | additive_exp . TMINUS multiplicative_exp
-
-    TPLUS   shift, and go to state 98
-    TMINUS  shift, and go to state 99
-
-    $default  reduce using rule 76 (relational_exp)
-
-
-state 64
-
-   81 additive_exp: multiplicative_exp .
-   85 multiplicative_exp: multiplicative_exp . TSTAR unary_exp
-   86                   | multiplicative_exp . TSLASH unary_exp
-   87                   | multiplicative_exp . TMOD unary_exp
-
-    TSTAR   shift, and go to state 100
-    TSLASH  shift, and go to state 101
-    TMOD    shift, and go to state 102
-
-    $default  reduce using rule 81 (additive_exp)
-
-
-state 65
-
-   63 assignment_exp: unary_exp . TASSIGN assignment_exp
-   64               | unary_exp . TADDASSIGN assignment_exp
-   65               | unary_exp . TSUBASSIGN assignment_exp
-   66               | unary_exp . TMULASSIGN assignment_exp
-   67               | unary_exp . TDIVASSIGN assignment_exp
-   68               | unary_exp . TMODASSIGN assignment_exp
-   84 multiplicative_exp: unary_exp .
-
-    TADDASSIGN  shift, and go to state 103
-    TSUBASSIGN  shift, and go to state 104
-    TMULASSIGN  shift, and go to state 105
-    TDIVASSIGN  shift, and go to state 106
-    TMODASSIGN  shift, and go to state 107
-    TASSIGN     shift, and go to state 108
-
-    $default  reduce using rule 84 (multiplicative_exp)
-
-
-state 66
-
-   88 unary_exp: postfix_exp .
-   94 postfix_exp: postfix_exp . TLLBRACKET expression TRLBRACKET
-   95            | postfix_exp . TLSBRACKET opt_actual_param TRSBRACKET
-   96            | postfix_exp . TINC
-   97            | postfix_exp . TDEC
-
-    TINC        shift, and go to state 109
-    TDEC        shift, and go to state 110
-    TLSBRACKET  shift, and go to state 111
-    TLLBRACKET  shift, and go to state 112
-
-    $default  reduce using rule 88 (unary_exp)
-
-
-state 67
-
-   93 postfix_exp: primary_exp .
-
-    $default  reduce using rule 93 (postfix_exp)
-
-
-state 68
-
-   30 declaration_list: declaration_list declaration .
-
-    $default  reduce using rule 30 (declaration_list)
-
-
-state 69
-
-   41 opt_number: TNUMBER .
-
-    $default  reduce using rule 41 (opt_number)
-
-
-state 70
-
-   39 declarator: TIDENT TLLBRACKET opt_number . TRLBRACKET
-   40           | TIDENT TLLBRACKET opt_number . error
-
-    error       shift, and go to state 113
-    TRLBRACKET  shift, and go to state 114
-
-
-state 71
-
-   24 param_dcl: dcl_spec . declarator
-
-    TIDENT  shift, and go to state 33
-
-    declarator  go to state 115
-
-
-state 72
-
-   18 formal_param: TLSBRACKET opt_formal_param . TRSBRACKET
-   19             | TLSBRACKET opt_formal_param . error
-
-    error       shift, and go to state 116
-    TRSBRACKET  shift, and go to state 117
-
-
-state 73
-
-   20 opt_formal_param: formal_param_list .
-   23 formal_param_list: formal_param_list . TCOMMA param_dcl
-
-    TCOMMA  shift, and go to state 118
-
-    $default  reduce using rule 20 (opt_formal_param)
-
-
-state 74
-
-   22 formal_param_list: param_dcl .
-
-    $default  reduce using rule 22 (formal_param_list)
-
-
-state 75
-
-   34 init_dcl_list: init_dcl_list TCOMMA init_declarator .
-
-    $default  reduce using rule 34 (init_dcl_list)
-
-
-state 76
-
-   35 init_dcl_list: init_dcl_list init_declarator error .
-
-    $default  reduce using rule 35 (init_dcl_list)
-
-
-state 77
-
-   37 init_declarator: declarator TASSIGN TNUMBER .
-
-    $default  reduce using rule 37 (init_declarator)
-
-
-state 78
-
-   55 if_st: TIF TLSBRACKET . expression TRSBRACKET statement
-   56      | TIF TLSBRACKET . expression TRSBRACKET statement TELSE statement
-   57      | TIF TLSBRACKET . expression error
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    expression          go to state 119
-    assignment_exp      go to state 58
-    logical_or_exp      go to state 59
-    logical_and_exp     go to state 60
-    equality_exp        go to state 61
-    relational_exp      go to state 62
-    additive_exp        go to state 63
-    multiplicative_exp  go to state 64
-    unary_exp           go to state 65
-    postfix_exp         go to state 66
-    primary_exp         go to state 67
-
-
-state 79
-
-   60 return_st: TRETURN opt_expression . TSEMICOLON
-
-    TSEMICOLON  shift, and go to state 120
-
-
-state 80
-
-   58 while_st: TWHILE TLSBRACKET . expression TRSBRACKET statement
-   59         | TWHILE TLSBRACKET . expression error
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    expression          go to state 121
-    assignment_exp      go to state 58
-    logical_or_exp      go to state 59
-    logical_and_exp     go to state 60
-    equality_exp        go to state 61
-    relational_exp      go to state 62
-    additive_exp        go to state 63
-    multiplicative_exp  go to state 64
-    unary_exp           go to state 65
-    postfix_exp         go to state 66
-    primary_exp         go to state 67
-
-
-state 81
-
-   91 unary_exp: TINC unary_exp .
-
-    $default  reduce using rule 91 (unary_exp)
-
-
-state 82
-
-   92 unary_exp: TDEC unary_exp .
-
-    $default  reduce using rule 92 (unary_exp)
-
-
-state 83
-
-   89 unary_exp: TMINUS unary_exp .
-
-    $default  reduce using rule 89 (unary_exp)
-
-
-state 84
-
-   90 unary_exp: TNOT unary_exp .
-
-    $default  reduce using rule 90 (unary_exp)
-
-
-state 85
-
-  105 primary_exp: TLSBRACKET expression . TRSBRACKET
-
-    TRSBRACKET  shift, and go to state 122
-
-
-state 86
-
-   26 compound_st: TLMBRACKET opt_dcl_list opt_stat_list error .
-
-    $default  reduce using rule 26 (compound_st)
-
-
-state 87
-
-   25 compound_st: TLMBRACKET opt_dcl_list opt_stat_list TRMBRACKET .
-
-    $default  reduce using rule 25 (compound_st)
-
-
-state 88
-
-   46 statement_list: statement_list statement .
-
-    $default  reduce using rule 46 (statement_list)
-
-
-state 89
-
-   52 expression_st: opt_expression TSEMICOLON .
-
-    $default  reduce using rule 52 (expression_st)
-
-
-state 90
-
-   70 logical_or_exp: logical_or_exp TOR . logical_and_exp
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    logical_and_exp     go to state 123
-    equality_exp        go to state 61
-    relational_exp      go to state 62
-    additive_exp        go to state 63
-    multiplicative_exp  go to state 64
-    unary_exp           go to state 124
-    postfix_exp         go to state 66
-    primary_exp         go to state 67
-
-
-state 91
-
-   72 logical_and_exp: logical_and_exp TAND . equality_exp
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    equality_exp        go to state 125
-    relational_exp      go to state 62
-    additive_exp        go to state 63
-    multiplicative_exp  go to state 64
-    unary_exp           go to state 124
-    postfix_exp         go to state 66
-    primary_exp         go to state 67
-
-
-state 92
-
-   74 equality_exp: equality_exp TEQUAL . relational_exp
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    relational_exp      go to state 126
-    additive_exp        go to state 63
-    multiplicative_exp  go to state 64
-    unary_exp           go to state 124
-    postfix_exp         go to state 66
-    primary_exp         go to state 67
-
-
-state 93
-
-   75 equality_exp: equality_exp TNOTEQU . relational_exp
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    relational_exp      go to state 127
-    additive_exp        go to state 63
-    multiplicative_exp  go to state 64
-    unary_exp           go to state 124
-    postfix_exp         go to state 66
-    primary_exp         go to state 67
-
-
-state 94
-
-   79 relational_exp: relational_exp TGREATE . additive_exp
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    additive_exp        go to state 128
-    multiplicative_exp  go to state 64
-    unary_exp           go to state 124
-    postfix_exp         go to state 66
-    primary_exp         go to state 67
-
-
-state 95
-
-   80 relational_exp: relational_exp TLESSE . additive_exp
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    additive_exp        go to state 129
-    multiplicative_exp  go to state 64
-    unary_exp           go to state 124
-    postfix_exp         go to state 66
-    primary_exp         go to state 67
-
-
-state 96
-
-   78 relational_exp: relational_exp TLESS . additive_exp
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    additive_exp        go to state 130
-    multiplicative_exp  go to state 64
-    unary_exp           go to state 124
-    postfix_exp         go to state 66
-    primary_exp         go to state 67
-
-
-state 97
-
-   77 relational_exp: relational_exp TGREAT . additive_exp
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    additive_exp        go to state 131
-    multiplicative_exp  go to state 64
-    unary_exp           go to state 124
-    postfix_exp         go to state 66
-    primary_exp         go to state 67
-
-
-state 98
-
-   82 additive_exp: additive_exp TPLUS . multiplicative_exp
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    multiplicative_exp  go to state 132
-    unary_exp           go to state 124
-    postfix_exp         go to state 66
-    primary_exp         go to state 67
-
-
-state 99
-
-   83 additive_exp: additive_exp TMINUS . multiplicative_exp
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    multiplicative_exp  go to state 133
-    unary_exp           go to state 124
-    postfix_exp         go to state 66
-    primary_exp         go to state 67
-
-
-state 100
-
-   85 multiplicative_exp: multiplicative_exp TSTAR . unary_exp
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    unary_exp    go to state 134
-    postfix_exp  go to state 66
-    primary_exp  go to state 67
-
-
-state 101
-
-   86 multiplicative_exp: multiplicative_exp TSLASH . unary_exp
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    unary_exp    go to state 135
-    postfix_exp  go to state 66
-    primary_exp  go to state 67
-
-
-state 102
-
-   87 multiplicative_exp: multiplicative_exp TMOD . unary_exp
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    unary_exp    go to state 136
-    postfix_exp  go to state 66
-    primary_exp  go to state 67
-
-
-state 103
-
-   64 assignment_exp: unary_exp TADDASSIGN . assignment_exp
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    assignment_exp      go to state 137
-    logical_or_exp      go to state 59
-    logical_and_exp     go to state 60
-    equality_exp        go to state 61
-    relational_exp      go to state 62
-    additive_exp        go to state 63
-    multiplicative_exp  go to state 64
-    unary_exp           go to state 65
-    postfix_exp         go to state 66
-    primary_exp         go to state 67
-
-
-state 104
-
-   65 assignment_exp: unary_exp TSUBASSIGN . assignment_exp
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    assignment_exp      go to state 138
-    logical_or_exp      go to state 59
-    logical_and_exp     go to state 60
-    equality_exp        go to state 61
-    relational_exp      go to state 62
-    additive_exp        go to state 63
-    multiplicative_exp  go to state 64
-    unary_exp           go to state 65
-    postfix_exp         go to state 66
-    primary_exp         go to state 67
-
-
-state 105
-
-   66 assignment_exp: unary_exp TMULASSIGN . assignment_exp
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    assignment_exp      go to state 139
-    logical_or_exp      go to state 59
-    logical_and_exp     go to state 60
-    equality_exp        go to state 61
-    relational_exp      go to state 62
-    additive_exp        go to state 63
-    multiplicative_exp  go to state 64
-    unary_exp           go to state 65
-    postfix_exp         go to state 66
-    primary_exp         go to state 67
-
-
-state 106
-
-   67 assignment_exp: unary_exp TDIVASSIGN . assignment_exp
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    assignment_exp      go to state 140
-    logical_or_exp      go to state 59
-    logical_and_exp     go to state 60
-    equality_exp        go to state 61
-    relational_exp      go to state 62
-    additive_exp        go to state 63
-    multiplicative_exp  go to state 64
-    unary_exp           go to state 65
-    postfix_exp         go to state 66
-    primary_exp         go to state 67
-
-
-state 107
-
-   68 assignment_exp: unary_exp TMODASSIGN . assignment_exp
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    assignment_exp      go to state 141
-    logical_or_exp      go to state 59
-    logical_and_exp     go to state 60
-    equality_exp        go to state 61
-    relational_exp      go to state 62
-    additive_exp        go to state 63
-    multiplicative_exp  go to state 64
-    unary_exp           go to state 65
-    postfix_exp         go to state 66
-    primary_exp         go to state 67
-
-
-state 108
-
-   63 assignment_exp: unary_exp TASSIGN . assignment_exp
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    assignment_exp      go to state 142
-    logical_or_exp      go to state 59
-    logical_and_exp     go to state 60
-    equality_exp        go to state 61
-    relational_exp      go to state 62
-    additive_exp        go to state 63
-    multiplicative_exp  go to state 64
-    unary_exp           go to state 65
-    postfix_exp         go to state 66
-    primary_exp         go to state 67
-
-
-state 109
-
-   96 postfix_exp: postfix_exp TINC .
-
-    $default  reduce using rule 96 (postfix_exp)
-
-
-state 110
-
-   97 postfix_exp: postfix_exp TDEC .
-
-    $default  reduce using rule 97 (postfix_exp)
-
-
-state 111
-
-   95 postfix_exp: postfix_exp TLSBRACKET . opt_actual_param TRSBRACKET
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    $default  reduce using rule 99 (opt_actual_param)
-
-    assignment_exp      go to state 143
-    logical_or_exp      go to state 59
-    logical_and_exp     go to state 60
-    equality_exp        go to state 61
-    relational_exp      go to state 62
-    additive_exp        go to state 63
-    multiplicative_exp  go to state 64
-    unary_exp           go to state 65
-    postfix_exp         go to state 66
-    opt_actual_param    go to state 144
-    actual_param        go to state 145
-    actual_param_list   go to state 146
-    primary_exp         go to state 67
-
-
-state 112
-
-   94 postfix_exp: postfix_exp TLLBRACKET . expression TRLBRACKET
-
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    expression          go to state 147
-    assignment_exp      go to state 58
-    logical_or_exp      go to state 59
-    logical_and_exp     go to state 60
-    equality_exp        go to state 61
-    relational_exp      go to state 62
-    additive_exp        go to state 63
-    multiplicative_exp  go to state 64
-    unary_exp           go to state 65
-    postfix_exp         go to state 66
-    primary_exp         go to state 67
-
-
-state 113
-
-   40 declarator: TIDENT TLLBRACKET opt_number error .
-
-    $default  reduce using rule 40 (declarator)
-
-
-state 114
-
-   39 declarator: TIDENT TLLBRACKET opt_number TRLBRACKET .
-
-    $default  reduce using rule 39 (declarator)
-
-
-state 115
-
-   24 param_dcl: dcl_spec declarator .
-
-    $default  reduce using rule 24 (param_dcl)
-
-
-state 116
-
-   19 formal_param: TLSBRACKET opt_formal_param error .
-
-    $default  reduce using rule 19 (formal_param)
-
-
-state 117
-
-   18 formal_param: TLSBRACKET opt_formal_param TRSBRACKET .
-
-    $default  reduce using rule 18 (formal_param)
-
-
-state 118
-
-   23 formal_param_list: formal_param_list TCOMMA . param_dcl
+   31 opt_dcl_list: declaration_list .
+   34 declaration_list: declaration_list . declaration
 
     TCONST  shift, and go to state 1
     TINT    shift, and go to state 2
     TVOID   shift, and go to state 3
+    TFLOAT  shift, and go to state 4
 
-    dcl_spec        go to state 71
-    dcl_specifiers  go to state 10
-    dcl_specifier   go to state 11
-    type_qualifier  go to state 12
-    type_specifier  go to state 13
-    param_dcl       go to state 148
+    $default  reduce using rule 31 (opt_dcl_list)
+
+    dcl_spec        go to state 30
+    dcl_specifiers  go to state 11
+    dcl_specifier   go to state 12
+    type_qualifier  go to state 13
+    type_specifier  go to state 14
+    declaration     go to state 75
+
+
+state 33
+
+   33 declaration_list: declaration .
+
+    $default  reduce using rule 33 (declaration_list)
+
+
+state 34
+
+   44 declarator: TIDENT TOLBRA . opt_number TCLBRA
+   45           | TIDENT TOLBRA . opt_number error
+
+    TPOINT   shift, and go to state 76
+    TNUMBER  shift, and go to state 77
+
+    $default  reduce using rule 50 (opt_number)
+
+    opt_number  go to state 78
+
+
+state 35
+
+   22 formal_param: TOSBRA . opt_formal_param TCSBRA
+
+    TCONST  shift, and go to state 1
+    TINT    shift, and go to state 2
+    TVOID   shift, and go to state 3
+    TFLOAT  shift, and go to state 4
+
+    $default  reduce using rule 24 (opt_formal_param)
+
+    dcl_spec           go to state 79
+    dcl_specifiers     go to state 11
+    dcl_specifier      go to state 12
+    type_qualifier     go to state 13
+    type_specifier     go to state 14
+    opt_formal_param   go to state 80
+    formal_param_list  go to state 81
+    param_dcl          go to state 82
+
+
+state 36
+
+    9 function_header: dcl_spec function_name formal_param .
+
+    $default  reduce using rule 9 (function_header)
+
+
+state 37
+
+   36 declaration: dcl_spec init_dcl_list error .
+
+    $default  reduce using rule 36 (declaration)
+
+
+state 38
+
+   38 init_dcl_list: init_dcl_list TCOMMA . init_declarator
+
+    TLONG      shift, and go to state 41
+    TILLIDENT  shift, and go to state 42
+    TIDENT     shift, and go to state 43
+
+    init_declarator  go to state 83
+    declarator       go to state 28
+
+
+state 39
+
+   35 declaration: dcl_spec init_dcl_list TSEMI .
+
+    $default  reduce using rule 35 (declaration)
+
+
+state 40
+
+   40 init_declarator: declarator TASSIGN . TNUMBER
+   41                | declarator TASSIGN . TPOINT
+   42                | declarator TASSIGN . error
+
+    error    shift, and go to state 84
+    TPOINT   shift, and go to state 85
+    TNUMBER  shift, and go to state 86
+
+
+state 41
+
+   47 declarator: TLONG .
+
+    $default  reduce using rule 47 (declarator)
+
+
+state 42
+
+   46 declarator: TILLIDENT .
+
+    $default  reduce using rule 46 (declarator)
+
+
+state 43
+
+   43 declarator: TIDENT .
+   44           | TIDENT . TOLBRA opt_number TCLBRA
+   45           | TIDENT . TOLBRA opt_number error
+
+    TOLBRA  shift, and go to state 34
+
+    $default  reduce using rule 43 (declarator)
+
+
+state 44
+
+   65 if_st: TIF . TOSBRA expression TCSBRA statement
+   66      | TIF . TOSBRA expression TCSBRA statement TELSE statement
+   67      | TIF . TOSBRA expression error
+
+    TOSBRA  shift, and go to state 87
+
+
+state 45
+
+   70 return_st: TRETURN . opt_expression TSEMI
+   71          | TRETURN . opt_expression error
+
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    $default  reduce using rule 64 (opt_expression)
+
+    opt_expression      go to state 88
+    expression          go to state 89
+    assignment_exp      go to state 65
+    logical_or_exp      go to state 66
+    logical_and_exp     go to state 67
+    equality_exp        go to state 68
+    relational_exp      go to state 69
+    additive_exp        go to state 70
+    multiplicative_exp  go to state 71
+    unary_exp           go to state 72
+    postfix_exp         go to state 73
+    primary_exp         go to state 74
+
+
+state 46
+
+   68 while_st: TWHILE . TOSBRA expression TCSBRA statement
+   69         | TWHILE . TOSBRA expression error
+
+    TOSBRA  shift, and go to state 90
+
+
+state 47
+
+  134 primary_exp: TPOINT .
+
+    $default  reduce using rule 134 (primary_exp)
+
+
+state 48
+
+  118 unary_exp: TMINUS . unary_exp
+
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    unary_exp    go to state 91
+    postfix_exp  go to state 73
+    primary_exp  go to state 74
+
+
+state 49
+
+  120 unary_exp: TINC . unary_exp
+
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    unary_exp    go to state 92
+    postfix_exp  go to state 73
+    primary_exp  go to state 74
+
+
+state 50
+
+  121 unary_exp: TDEC . unary_exp
+
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    unary_exp    go to state 93
+    postfix_exp  go to state 73
+    primary_exp  go to state 74
+
+
+state 51
+
+  135 primary_exp: TOSBRA . expression TCSBRA
+
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    expression          go to state 94
+    assignment_exp      go to state 65
+    logical_or_exp      go to state 66
+    logical_and_exp     go to state 67
+    equality_exp        go to state 68
+    relational_exp      go to state 69
+    additive_exp        go to state 70
+    multiplicative_exp  go to state 71
+    unary_exp           go to state 72
+    postfix_exp         go to state 73
+    primary_exp         go to state 74
+
+
+state 52
+
+  133 primary_exp: TNUMBER .
+
+    $default  reduce using rule 133 (primary_exp)
+
+
+state 53
+
+  119 unary_exp: TNOT . unary_exp
+
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    unary_exp    go to state 95
+    postfix_exp  go to state 73
+    primary_exp  go to state 74
+
+
+state 54
+
+  132 primary_exp: TIDENT .
+
+    $default  reduce using rule 132 (primary_exp)
+
+
+state 55
+
+   56 statement: compound_st .
+
+    $default  reduce using rule 56 (statement)
+
+
+state 56
+
+   29 compound_st: TOMBRA opt_dcl_list opt_stat_list . TCMBRA
+   30            | TOMBRA opt_dcl_list opt_stat_list . error
+
+    error   shift, and go to state 96
+    TCMBRA  shift, and go to state 97
+
+
+state 57
+
+   51 opt_stat_list: statement_list .
+   54 statement_list: statement_list . statement
+   55               | statement_list . declaration
+
+    TCONST   shift, and go to state 1
+    TIF      shift, and go to state 44
+    TINT     shift, and go to state 2
+    TRETURN  shift, and go to state 45
+    TVOID    shift, and go to state 3
+    TWHILE   shift, and go to state 46
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TOMBRA   shift, and go to state 19
+    TNUMBER  shift, and go to state 52
+    TFLOAT   shift, and go to state 4
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    TSEMI     reduce using rule 64 (opt_expression)
+    $default  reduce using rule 51 (opt_stat_list)
+
+    dcl_spec            go to state 30
+    dcl_specifiers      go to state 11
+    dcl_specifier       go to state 12
+    type_qualifier      go to state 13
+    type_specifier      go to state 14
+    compound_st         go to state 55
+    declaration         go to state 98
+    statement           go to state 99
+    expression_st       go to state 59
+    opt_expression      go to state 60
+    if_st               go to state 61
+    while_st            go to state 62
+    return_st           go to state 63
+    expression          go to state 64
+    assignment_exp      go to state 65
+    logical_or_exp      go to state 66
+    logical_and_exp     go to state 67
+    equality_exp        go to state 68
+    relational_exp      go to state 69
+    additive_exp        go to state 70
+    multiplicative_exp  go to state 71
+    unary_exp           go to state 72
+    postfix_exp         go to state 73
+    primary_exp         go to state 74
+
+
+state 58
+
+   53 statement_list: statement .
+
+    $default  reduce using rule 53 (statement_list)
+
+
+state 59
+
+   57 statement: expression_st .
+
+    $default  reduce using rule 57 (statement)
+
+
+state 60
+
+   61 expression_st: opt_expression . TSEMI
+
+    TSEMI  shift, and go to state 100
+
+
+state 61
+
+   58 statement: if_st .
+
+    $default  reduce using rule 58 (statement)
+
+
+state 62
+
+   59 statement: while_st .
+
+    $default  reduce using rule 59 (statement)
+
+
+state 63
+
+   60 statement: return_st .
+
+    $default  reduce using rule 60 (statement)
+
+
+state 64
+
+   62 expression_st: expression . error
+   63 opt_expression: expression .
+
+    error  shift, and go to state 101
+
+    TSEMI  reduce using rule 63 (opt_expression)
+
+
+state 65
+
+   72 expression: assignment_exp .
+
+    $default  reduce using rule 72 (expression)
+
+
+state 66
+
+   73 assignment_exp: logical_or_exp .
+   87 logical_or_exp: logical_or_exp . TOR logical_and_exp
+   88               | logical_or_exp . TOR error
+
+    TOR  shift, and go to state 102
+
+    $default  reduce using rule 73 (assignment_exp)
+
+
+state 67
+
+   86 logical_or_exp: logical_and_exp .
+   90 logical_and_exp: logical_and_exp . TAND equality_exp
+   91                | logical_and_exp . TAND error
+
+    TAND  shift, and go to state 103
+
+    $default  reduce using rule 86 (logical_or_exp)
+
+
+state 68
+
+   89 logical_and_exp: equality_exp .
+   93 equality_exp: equality_exp . TEQUAL relational_exp
+   94             | equality_exp . TNOTEQU relational_exp
+   95             | equality_exp . TEQUAL error
+   96             | equality_exp . TNOTEQU error
+
+    TEQUAL   shift, and go to state 104
+    TNOTEQU  shift, and go to state 105
+
+    $default  reduce using rule 89 (logical_and_exp)
+
+
+state 69
+
+   92 equality_exp: relational_exp .
+   98 relational_exp: relational_exp . TOVER additive_exp
+   99               | relational_exp . TLESS additive_exp
+  100               | relational_exp . TGREATE additive_exp
+  101               | relational_exp . TLESSE additive_exp
+  102               | relational_exp . TOVER
+  103               | relational_exp . TLESS
+  104               | relational_exp . TGREATE
+  105               | relational_exp . TLESSE
+
+    TLESS    shift, and go to state 106
+    TOVER    shift, and go to state 107
+    TLESSE   shift, and go to state 108
+    TGREATE  shift, and go to state 109
+
+    $default  reduce using rule 92 (equality_exp)
+
+
+state 70
+
+   97 relational_exp: additive_exp .
+  107 additive_exp: additive_exp . TPLUS multiplicative_exp
+  108             | additive_exp . TPLUS error
+  109             | additive_exp . TMINUS
+
+    TPLUS   shift, and go to state 110
+    TMINUS  shift, and go to state 111
+
+    $default  reduce using rule 97 (relational_exp)
+
+
+state 71
+
+  106 additive_exp: multiplicative_exp .
+  111 multiplicative_exp: multiplicative_exp . TSTAR unary_exp
+  112                   | multiplicative_exp . TSLASH unary_exp
+  113                   | multiplicative_exp . TMOD unary_exp
+  114                   | multiplicative_exp . TSTAR error
+  115                   | multiplicative_exp . TSLASH error
+  116                   | multiplicative_exp . TMOD error
+
+    TSTAR   shift, and go to state 112
+    TSLASH  shift, and go to state 113
+    TMOD    shift, and go to state 114
+
+    $default  reduce using rule 106 (additive_exp)
+
+
+state 72
+
+   74 assignment_exp: unary_exp . TASSIGN assignment_exp
+   75               | unary_exp . TADDASSIGN assignment_exp
+   76               | unary_exp . TSUBASSIGN assignment_exp
+   77               | unary_exp . TMULASSIGN assignment_exp
+   78               | unary_exp . TDIVASSIGN assignment_exp
+   79               | unary_exp . TMODASSIGN assignment_exp
+   80               | unary_exp . TASSIGN error
+   81               | unary_exp . TADDASSIGN error
+   82               | unary_exp . TSUBASSIGN error
+   83               | unary_exp . TMULASSIGN error
+   84               | unary_exp . TDIVASSIGN error
+   85               | unary_exp . TMODASSIGN error
+  110 multiplicative_exp: unary_exp .
+
+    TASSIGN     shift, and go to state 115
+    TADDASSIGN  shift, and go to state 116
+    TSUBASSIGN  shift, and go to state 117
+    TMULASSIGN  shift, and go to state 118
+    TDIVASSIGN  shift, and go to state 119
+    TMODASSIGN  shift, and go to state 120
+
+    $default  reduce using rule 110 (multiplicative_exp)
+
+
+state 73
+
+  117 unary_exp: postfix_exp .
+  123 postfix_exp: postfix_exp . TOLBRA expression TCLBRA
+  124            | postfix_exp . TOSBRA opt_actual_param TCSBRA
+  125            | postfix_exp . TINC
+  126            | postfix_exp . TDEC
+
+    TINC    shift, and go to state 121
+    TDEC    shift, and go to state 122
+    TOSBRA  shift, and go to state 123
+    TOLBRA  shift, and go to state 124
+
+    $default  reduce using rule 117 (unary_exp)
+
+
+state 74
+
+  122 postfix_exp: primary_exp .
+
+    $default  reduce using rule 122 (postfix_exp)
+
+
+state 75
+
+   34 declaration_list: declaration_list declaration .
+
+    $default  reduce using rule 34 (declaration_list)
+
+
+state 76
+
+   49 opt_number: TPOINT .
+
+    $default  reduce using rule 49 (opt_number)
+
+
+state 77
+
+   48 opt_number: TNUMBER .
+
+    $default  reduce using rule 48 (opt_number)
+
+
+state 78
+
+   44 declarator: TIDENT TOLBRA opt_number . TCLBRA
+   45           | TIDENT TOLBRA opt_number . error
+
+    error   shift, and go to state 125
+    TCLBRA  shift, and go to state 126
+
+
+state 79
+
+   28 param_dcl: dcl_spec . declarator
+
+    TLONG      shift, and go to state 41
+    TILLIDENT  shift, and go to state 42
+    TIDENT     shift, and go to state 43
+
+    declarator  go to state 127
+
+
+state 80
+
+   22 formal_param: TOSBRA opt_formal_param . TCSBRA
+
+    TCSBRA  shift, and go to state 128
+
+
+state 81
+
+   23 opt_formal_param: formal_param_list .
+   26 formal_param_list: formal_param_list . TCOMMA param_dcl
+   27                  | formal_param_list . error param_dcl
+
+    error   shift, and go to state 129
+    TCOMMA  shift, and go to state 130
+
+    TCSBRA  reduce using rule 23 (opt_formal_param)
+
+
+state 82
+
+   25 formal_param_list: param_dcl .
+
+    $default  reduce using rule 25 (formal_param_list)
+
+
+state 83
+
+   38 init_dcl_list: init_dcl_list TCOMMA init_declarator .
+
+    $default  reduce using rule 38 (init_dcl_list)
+
+
+state 84
+
+   42 init_declarator: declarator TASSIGN error .
+
+    $default  reduce using rule 42 (init_declarator)
+
+
+state 85
+
+   41 init_declarator: declarator TASSIGN TPOINT .
+
+    $default  reduce using rule 41 (init_declarator)
+
+
+state 86
+
+   40 init_declarator: declarator TASSIGN TNUMBER .
+
+    $default  reduce using rule 40 (init_declarator)
+
+
+state 87
+
+   65 if_st: TIF TOSBRA . expression TCSBRA statement
+   66      | TIF TOSBRA . expression TCSBRA statement TELSE statement
+   67      | TIF TOSBRA . expression error
+
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    expression          go to state 131
+    assignment_exp      go to state 65
+    logical_or_exp      go to state 66
+    logical_and_exp     go to state 67
+    equality_exp        go to state 68
+    relational_exp      go to state 69
+    additive_exp        go to state 70
+    multiplicative_exp  go to state 71
+    unary_exp           go to state 72
+    postfix_exp         go to state 73
+    primary_exp         go to state 74
+
+
+state 88
+
+   70 return_st: TRETURN opt_expression . TSEMI
+   71          | TRETURN opt_expression . error
+
+    error  shift, and go to state 132
+    TSEMI  shift, and go to state 133
+
+
+state 89
+
+   63 opt_expression: expression .
+
+    $default  reduce using rule 63 (opt_expression)
+
+
+state 90
+
+   68 while_st: TWHILE TOSBRA . expression TCSBRA statement
+   69         | TWHILE TOSBRA . expression error
+
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    expression          go to state 134
+    assignment_exp      go to state 65
+    logical_or_exp      go to state 66
+    logical_and_exp     go to state 67
+    equality_exp        go to state 68
+    relational_exp      go to state 69
+    additive_exp        go to state 70
+    multiplicative_exp  go to state 71
+    unary_exp           go to state 72
+    postfix_exp         go to state 73
+    primary_exp         go to state 74
+
+
+state 91
+
+  118 unary_exp: TMINUS unary_exp .
+
+    $default  reduce using rule 118 (unary_exp)
+
+
+state 92
+
+  120 unary_exp: TINC unary_exp .
+
+    $default  reduce using rule 120 (unary_exp)
+
+
+state 93
+
+  121 unary_exp: TDEC unary_exp .
+
+    $default  reduce using rule 121 (unary_exp)
+
+
+state 94
+
+  135 primary_exp: TOSBRA expression . TCSBRA
+
+    TCSBRA  shift, and go to state 135
+
+
+state 95
+
+  119 unary_exp: TNOT unary_exp .
+
+    $default  reduce using rule 119 (unary_exp)
+
+
+state 96
+
+   30 compound_st: TOMBRA opt_dcl_list opt_stat_list error .
+
+    $default  reduce using rule 30 (compound_st)
+
+
+state 97
+
+   29 compound_st: TOMBRA opt_dcl_list opt_stat_list TCMBRA .
+
+    $default  reduce using rule 29 (compound_st)
+
+
+state 98
+
+   55 statement_list: statement_list declaration .
+
+    $default  reduce using rule 55 (statement_list)
+
+
+state 99
+
+   54 statement_list: statement_list statement .
+
+    $default  reduce using rule 54 (statement_list)
+
+
+state 100
+
+   61 expression_st: opt_expression TSEMI .
+
+    $default  reduce using rule 61 (expression_st)
+
+
+state 101
+
+   62 expression_st: expression error .
+
+    $default  reduce using rule 62 (expression_st)
+
+
+state 102
+
+   87 logical_or_exp: logical_or_exp TOR . logical_and_exp
+   88               | logical_or_exp TOR . error
+
+    error    shift, and go to state 136
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    logical_and_exp     go to state 137
+    equality_exp        go to state 68
+    relational_exp      go to state 69
+    additive_exp        go to state 70
+    multiplicative_exp  go to state 71
+    unary_exp           go to state 138
+    postfix_exp         go to state 73
+    primary_exp         go to state 74
+
+
+state 103
+
+   90 logical_and_exp: logical_and_exp TAND . equality_exp
+   91                | logical_and_exp TAND . error
+
+    error    shift, and go to state 139
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    equality_exp        go to state 140
+    relational_exp      go to state 69
+    additive_exp        go to state 70
+    multiplicative_exp  go to state 71
+    unary_exp           go to state 138
+    postfix_exp         go to state 73
+    primary_exp         go to state 74
+
+
+state 104
+
+   93 equality_exp: equality_exp TEQUAL . relational_exp
+   95             | equality_exp TEQUAL . error
+
+    error    shift, and go to state 141
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    relational_exp      go to state 142
+    additive_exp        go to state 70
+    multiplicative_exp  go to state 71
+    unary_exp           go to state 138
+    postfix_exp         go to state 73
+    primary_exp         go to state 74
+
+
+state 105
+
+   94 equality_exp: equality_exp TNOTEQU . relational_exp
+   96             | equality_exp TNOTEQU . error
+
+    error    shift, and go to state 143
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    relational_exp      go to state 144
+    additive_exp        go to state 70
+    multiplicative_exp  go to state 71
+    unary_exp           go to state 138
+    postfix_exp         go to state 73
+    primary_exp         go to state 74
+
+
+state 106
+
+   99 relational_exp: relational_exp TLESS . additive_exp
+  103               | relational_exp TLESS .
+
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    $default  reduce using rule 103 (relational_exp)
+
+    additive_exp        go to state 145
+    multiplicative_exp  go to state 71
+    unary_exp           go to state 138
+    postfix_exp         go to state 73
+    primary_exp         go to state 74
+
+
+state 107
+
+   98 relational_exp: relational_exp TOVER . additive_exp
+  102               | relational_exp TOVER .
+
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    $default  reduce using rule 102 (relational_exp)
+
+    additive_exp        go to state 146
+    multiplicative_exp  go to state 71
+    unary_exp           go to state 138
+    postfix_exp         go to state 73
+    primary_exp         go to state 74
+
+
+state 108
+
+  101 relational_exp: relational_exp TLESSE . additive_exp
+  105               | relational_exp TLESSE .
+
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    $default  reduce using rule 105 (relational_exp)
+
+    additive_exp        go to state 147
+    multiplicative_exp  go to state 71
+    unary_exp           go to state 138
+    postfix_exp         go to state 73
+    primary_exp         go to state 74
+
+
+state 109
+
+  100 relational_exp: relational_exp TGREATE . additive_exp
+  104               | relational_exp TGREATE .
+
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    $default  reduce using rule 104 (relational_exp)
+
+    additive_exp        go to state 148
+    multiplicative_exp  go to state 71
+    unary_exp           go to state 138
+    postfix_exp         go to state 73
+    primary_exp         go to state 74
+
+
+state 110
+
+  107 additive_exp: additive_exp TPLUS . multiplicative_exp
+  108             | additive_exp TPLUS . error
+
+    error    shift, and go to state 149
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    multiplicative_exp  go to state 150
+    unary_exp           go to state 138
+    postfix_exp         go to state 73
+    primary_exp         go to state 74
+
+
+state 111
+
+  109 additive_exp: additive_exp TMINUS .
+
+    $default  reduce using rule 109 (additive_exp)
+
+
+state 112
+
+  111 multiplicative_exp: multiplicative_exp TSTAR . unary_exp
+  114                   | multiplicative_exp TSTAR . error
+
+    error    shift, and go to state 151
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    unary_exp    go to state 152
+    postfix_exp  go to state 73
+    primary_exp  go to state 74
+
+
+state 113
+
+  112 multiplicative_exp: multiplicative_exp TSLASH . unary_exp
+  115                   | multiplicative_exp TSLASH . error
+
+    error    shift, and go to state 153
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    unary_exp    go to state 154
+    postfix_exp  go to state 73
+    primary_exp  go to state 74
+
+
+state 114
+
+  113 multiplicative_exp: multiplicative_exp TMOD . unary_exp
+  116                   | multiplicative_exp TMOD . error
+
+    error    shift, and go to state 155
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    unary_exp    go to state 156
+    postfix_exp  go to state 73
+    primary_exp  go to state 74
+
+
+state 115
+
+   74 assignment_exp: unary_exp TASSIGN . assignment_exp
+   80               | unary_exp TASSIGN . error
+
+    error    shift, and go to state 157
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    assignment_exp      go to state 158
+    logical_or_exp      go to state 66
+    logical_and_exp     go to state 67
+    equality_exp        go to state 68
+    relational_exp      go to state 69
+    additive_exp        go to state 70
+    multiplicative_exp  go to state 71
+    unary_exp           go to state 72
+    postfix_exp         go to state 73
+    primary_exp         go to state 74
+
+
+state 116
+
+   75 assignment_exp: unary_exp TADDASSIGN . assignment_exp
+   81               | unary_exp TADDASSIGN . error
+
+    error    shift, and go to state 159
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    assignment_exp      go to state 160
+    logical_or_exp      go to state 66
+    logical_and_exp     go to state 67
+    equality_exp        go to state 68
+    relational_exp      go to state 69
+    additive_exp        go to state 70
+    multiplicative_exp  go to state 71
+    unary_exp           go to state 72
+    postfix_exp         go to state 73
+    primary_exp         go to state 74
+
+
+state 117
+
+   76 assignment_exp: unary_exp TSUBASSIGN . assignment_exp
+   82               | unary_exp TSUBASSIGN . error
+
+    error    shift, and go to state 161
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    assignment_exp      go to state 162
+    logical_or_exp      go to state 66
+    logical_and_exp     go to state 67
+    equality_exp        go to state 68
+    relational_exp      go to state 69
+    additive_exp        go to state 70
+    multiplicative_exp  go to state 71
+    unary_exp           go to state 72
+    postfix_exp         go to state 73
+    primary_exp         go to state 74
+
+
+state 118
+
+   77 assignment_exp: unary_exp TMULASSIGN . assignment_exp
+   83               | unary_exp TMULASSIGN . error
+
+    error    shift, and go to state 163
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    assignment_exp      go to state 164
+    logical_or_exp      go to state 66
+    logical_and_exp     go to state 67
+    equality_exp        go to state 68
+    relational_exp      go to state 69
+    additive_exp        go to state 70
+    multiplicative_exp  go to state 71
+    unary_exp           go to state 72
+    postfix_exp         go to state 73
+    primary_exp         go to state 74
 
 
 state 119
 
-   55 if_st: TIF TLSBRACKET expression . TRSBRACKET statement
-   56      | TIF TLSBRACKET expression . TRSBRACKET statement TELSE statement
-   57      | TIF TLSBRACKET expression . error
+   78 assignment_exp: unary_exp TDIVASSIGN . assignment_exp
+   84               | unary_exp TDIVASSIGN . error
 
-    error       shift, and go to state 149
-    TRSBRACKET  shift, and go to state 150
+    error    shift, and go to state 165
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    assignment_exp      go to state 166
+    logical_or_exp      go to state 66
+    logical_and_exp     go to state 67
+    equality_exp        go to state 68
+    relational_exp      go to state 69
+    additive_exp        go to state 70
+    multiplicative_exp  go to state 71
+    unary_exp           go to state 72
+    postfix_exp         go to state 73
+    primary_exp         go to state 74
 
 
 state 120
 
-   60 return_st: TRETURN opt_expression TSEMICOLON .
+   79 assignment_exp: unary_exp TMODASSIGN . assignment_exp
+   85               | unary_exp TMODASSIGN . error
 
-    $default  reduce using rule 60 (return_st)
+    error    shift, and go to state 167
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    assignment_exp      go to state 168
+    logical_or_exp      go to state 66
+    logical_and_exp     go to state 67
+    equality_exp        go to state 68
+    relational_exp      go to state 69
+    additive_exp        go to state 70
+    multiplicative_exp  go to state 71
+    unary_exp           go to state 72
+    postfix_exp         go to state 73
+    primary_exp         go to state 74
 
 
 state 121
 
-   58 while_st: TWHILE TLSBRACKET expression . TRSBRACKET statement
-   59         | TWHILE TLSBRACKET expression . error
+  125 postfix_exp: postfix_exp TINC .
 
-    error       shift, and go to state 151
-    TRSBRACKET  shift, and go to state 152
+    $default  reduce using rule 125 (postfix_exp)
 
 
 state 122
 
-  105 primary_exp: TLSBRACKET expression TRSBRACKET .
+  126 postfix_exp: postfix_exp TDEC .
 
-    $default  reduce using rule 105 (primary_exp)
+    $default  reduce using rule 126 (postfix_exp)
 
 
 state 123
 
-   70 logical_or_exp: logical_or_exp TOR logical_and_exp .
-   72 logical_and_exp: logical_and_exp . TAND equality_exp
+  124 postfix_exp: postfix_exp TOSBRA . opt_actual_param TCSBRA
 
-    TAND  shift, and go to state 91
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
 
-    $default  reduce using rule 70 (logical_or_exp)
+    $default  reduce using rule 128 (opt_actual_param)
+
+    assignment_exp      go to state 169
+    logical_or_exp      go to state 66
+    logical_and_exp     go to state 67
+    equality_exp        go to state 68
+    relational_exp      go to state 69
+    additive_exp        go to state 70
+    multiplicative_exp  go to state 71
+    unary_exp           go to state 72
+    postfix_exp         go to state 73
+    opt_actual_param    go to state 170
+    actual_param        go to state 171
+    actual_param_list   go to state 172
+    primary_exp         go to state 74
 
 
 state 124
 
-   84 multiplicative_exp: unary_exp .
+  123 postfix_exp: postfix_exp TOLBRA . expression TCLBRA
 
-    $default  reduce using rule 84 (multiplicative_exp)
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    expression          go to state 173
+    assignment_exp      go to state 65
+    logical_or_exp      go to state 66
+    logical_and_exp     go to state 67
+    equality_exp        go to state 68
+    relational_exp      go to state 69
+    additive_exp        go to state 70
+    multiplicative_exp  go to state 71
+    unary_exp           go to state 72
+    postfix_exp         go to state 73
+    primary_exp         go to state 74
 
 
 state 125
 
-   72 logical_and_exp: logical_and_exp TAND equality_exp .
-   74 equality_exp: equality_exp . TEQUAL relational_exp
-   75             | equality_exp . TNOTEQU relational_exp
+   45 declarator: TIDENT TOLBRA opt_number error .
 
-    TEQUAL   shift, and go to state 92
-    TNOTEQU  shift, and go to state 93
-
-    $default  reduce using rule 72 (logical_and_exp)
+    $default  reduce using rule 45 (declarator)
 
 
 state 126
 
-   74 equality_exp: equality_exp TEQUAL relational_exp .
-   77 relational_exp: relational_exp . TGREAT additive_exp
-   78               | relational_exp . TLESS additive_exp
-   79               | relational_exp . TGREATE additive_exp
-   80               | relational_exp . TLESSE additive_exp
+   44 declarator: TIDENT TOLBRA opt_number TCLBRA .
 
-    TGREATE  shift, and go to state 94
-    TLESSE   shift, and go to state 95
-    TLESS    shift, and go to state 96
-    TGREAT   shift, and go to state 97
-
-    $default  reduce using rule 74 (equality_exp)
+    $default  reduce using rule 44 (declarator)
 
 
 state 127
 
-   75 equality_exp: equality_exp TNOTEQU relational_exp .
-   77 relational_exp: relational_exp . TGREAT additive_exp
-   78               | relational_exp . TLESS additive_exp
-   79               | relational_exp . TGREATE additive_exp
-   80               | relational_exp . TLESSE additive_exp
+   28 param_dcl: dcl_spec declarator .
 
-    TGREATE  shift, and go to state 94
-    TLESSE   shift, and go to state 95
-    TLESS    shift, and go to state 96
-    TGREAT   shift, and go to state 97
-
-    $default  reduce using rule 75 (equality_exp)
+    $default  reduce using rule 28 (param_dcl)
 
 
 state 128
 
-   79 relational_exp: relational_exp TGREATE additive_exp .
-   82 additive_exp: additive_exp . TPLUS multiplicative_exp
-   83             | additive_exp . TMINUS multiplicative_exp
+   22 formal_param: TOSBRA opt_formal_param TCSBRA .
 
-    TPLUS   shift, and go to state 98
-    TMINUS  shift, and go to state 99
-
-    $default  reduce using rule 79 (relational_exp)
+    $default  reduce using rule 22 (formal_param)
 
 
 state 129
 
-   80 relational_exp: relational_exp TLESSE additive_exp .
-   82 additive_exp: additive_exp . TPLUS multiplicative_exp
-   83             | additive_exp . TMINUS multiplicative_exp
+   27 formal_param_list: formal_param_list error . param_dcl
 
-    TPLUS   shift, and go to state 98
-    TMINUS  shift, and go to state 99
+    TCONST  shift, and go to state 1
+    TINT    shift, and go to state 2
+    TVOID   shift, and go to state 3
+    TFLOAT  shift, and go to state 4
 
-    $default  reduce using rule 80 (relational_exp)
+    dcl_spec        go to state 79
+    dcl_specifiers  go to state 11
+    dcl_specifier   go to state 12
+    type_qualifier  go to state 13
+    type_specifier  go to state 14
+    param_dcl       go to state 174
 
 
 state 130
 
-   78 relational_exp: relational_exp TLESS additive_exp .
-   82 additive_exp: additive_exp . TPLUS multiplicative_exp
-   83             | additive_exp . TMINUS multiplicative_exp
+   26 formal_param_list: formal_param_list TCOMMA . param_dcl
 
-    TPLUS   shift, and go to state 98
-    TMINUS  shift, and go to state 99
+    TCONST  shift, and go to state 1
+    TINT    shift, and go to state 2
+    TVOID   shift, and go to state 3
+    TFLOAT  shift, and go to state 4
 
-    $default  reduce using rule 78 (relational_exp)
+    dcl_spec        go to state 79
+    dcl_specifiers  go to state 11
+    dcl_specifier   go to state 12
+    type_qualifier  go to state 13
+    type_specifier  go to state 14
+    param_dcl       go to state 175
 
 
 state 131
 
-   77 relational_exp: relational_exp TGREAT additive_exp .
-   82 additive_exp: additive_exp . TPLUS multiplicative_exp
-   83             | additive_exp . TMINUS multiplicative_exp
+   65 if_st: TIF TOSBRA expression . TCSBRA statement
+   66      | TIF TOSBRA expression . TCSBRA statement TELSE statement
+   67      | TIF TOSBRA expression . error
 
-    TPLUS   shift, and go to state 98
-    TMINUS  shift, and go to state 99
-
-    $default  reduce using rule 77 (relational_exp)
+    error   shift, and go to state 176
+    TCSBRA  shift, and go to state 177
 
 
 state 132
 
-   82 additive_exp: additive_exp TPLUS multiplicative_exp .
-   85 multiplicative_exp: multiplicative_exp . TSTAR unary_exp
-   86                   | multiplicative_exp . TSLASH unary_exp
-   87                   | multiplicative_exp . TMOD unary_exp
+   71 return_st: TRETURN opt_expression error .
 
-    TSTAR   shift, and go to state 100
-    TSLASH  shift, and go to state 101
-    TMOD    shift, and go to state 102
-
-    $default  reduce using rule 82 (additive_exp)
+    $default  reduce using rule 71 (return_st)
 
 
 state 133
 
-   83 additive_exp: additive_exp TMINUS multiplicative_exp .
-   85 multiplicative_exp: multiplicative_exp . TSTAR unary_exp
-   86                   | multiplicative_exp . TSLASH unary_exp
-   87                   | multiplicative_exp . TMOD unary_exp
+   70 return_st: TRETURN opt_expression TSEMI .
 
-    TSTAR   shift, and go to state 100
-    TSLASH  shift, and go to state 101
-    TMOD    shift, and go to state 102
-
-    $default  reduce using rule 83 (additive_exp)
+    $default  reduce using rule 70 (return_st)
 
 
 state 134
 
-   85 multiplicative_exp: multiplicative_exp TSTAR unary_exp .
+   68 while_st: TWHILE TOSBRA expression . TCSBRA statement
+   69         | TWHILE TOSBRA expression . error
 
-    $default  reduce using rule 85 (multiplicative_exp)
+    error   shift, and go to state 178
+    TCSBRA  shift, and go to state 179
 
 
 state 135
 
-   86 multiplicative_exp: multiplicative_exp TSLASH unary_exp .
+  135 primary_exp: TOSBRA expression TCSBRA .
 
-    $default  reduce using rule 86 (multiplicative_exp)
+    $default  reduce using rule 135 (primary_exp)
 
 
 state 136
 
-   87 multiplicative_exp: multiplicative_exp TMOD unary_exp .
+   88 logical_or_exp: logical_or_exp TOR error .
 
-    $default  reduce using rule 87 (multiplicative_exp)
+    $default  reduce using rule 88 (logical_or_exp)
 
 
 state 137
 
-   64 assignment_exp: unary_exp TADDASSIGN assignment_exp .
+   87 logical_or_exp: logical_or_exp TOR logical_and_exp .
+   90 logical_and_exp: logical_and_exp . TAND equality_exp
+   91                | logical_and_exp . TAND error
 
-    $default  reduce using rule 64 (assignment_exp)
+    TAND  shift, and go to state 103
+
+    $default  reduce using rule 87 (logical_or_exp)
 
 
 state 138
 
-   65 assignment_exp: unary_exp TSUBASSIGN assignment_exp .
+  110 multiplicative_exp: unary_exp .
 
-    $default  reduce using rule 65 (assignment_exp)
+    $default  reduce using rule 110 (multiplicative_exp)
 
 
 state 139
 
-   66 assignment_exp: unary_exp TMULASSIGN assignment_exp .
+   91 logical_and_exp: logical_and_exp TAND error .
 
-    $default  reduce using rule 66 (assignment_exp)
+    $default  reduce using rule 91 (logical_and_exp)
 
 
 state 140
 
-   67 assignment_exp: unary_exp TDIVASSIGN assignment_exp .
+   90 logical_and_exp: logical_and_exp TAND equality_exp .
+   93 equality_exp: equality_exp . TEQUAL relational_exp
+   94             | equality_exp . TNOTEQU relational_exp
+   95             | equality_exp . TEQUAL error
+   96             | equality_exp . TNOTEQU error
 
-    $default  reduce using rule 67 (assignment_exp)
+    TEQUAL   shift, and go to state 104
+    TNOTEQU  shift, and go to state 105
+
+    $default  reduce using rule 90 (logical_and_exp)
 
 
 state 141
 
-   68 assignment_exp: unary_exp TMODASSIGN assignment_exp .
+   95 equality_exp: equality_exp TEQUAL error .
 
-    $default  reduce using rule 68 (assignment_exp)
+    $default  reduce using rule 95 (equality_exp)
 
 
 state 142
 
-   63 assignment_exp: unary_exp TASSIGN assignment_exp .
+   93 equality_exp: equality_exp TEQUAL relational_exp .
+   98 relational_exp: relational_exp . TOVER additive_exp
+   99               | relational_exp . TLESS additive_exp
+  100               | relational_exp . TGREATE additive_exp
+  101               | relational_exp . TLESSE additive_exp
+  102               | relational_exp . TOVER
+  103               | relational_exp . TLESS
+  104               | relational_exp . TGREATE
+  105               | relational_exp . TLESSE
 
-    $default  reduce using rule 63 (assignment_exp)
+    TLESS    shift, and go to state 106
+    TOVER    shift, and go to state 107
+    TLESSE   shift, and go to state 108
+    TGREATE  shift, and go to state 109
+
+    $default  reduce using rule 93 (equality_exp)
 
 
 state 143
 
-  101 actual_param_list: assignment_exp .
+   96 equality_exp: equality_exp TNOTEQU error .
 
-    $default  reduce using rule 101 (actual_param_list)
+    $default  reduce using rule 96 (equality_exp)
 
 
 state 144
 
-   95 postfix_exp: postfix_exp TLSBRACKET opt_actual_param . TRSBRACKET
+   94 equality_exp: equality_exp TNOTEQU relational_exp .
+   98 relational_exp: relational_exp . TOVER additive_exp
+   99               | relational_exp . TLESS additive_exp
+  100               | relational_exp . TGREATE additive_exp
+  101               | relational_exp . TLESSE additive_exp
+  102               | relational_exp . TOVER
+  103               | relational_exp . TLESS
+  104               | relational_exp . TGREATE
+  105               | relational_exp . TLESSE
 
-    TRSBRACKET  shift, and go to state 153
+    TLESS    shift, and go to state 106
+    TOVER    shift, and go to state 107
+    TLESSE   shift, and go to state 108
+    TGREATE  shift, and go to state 109
+
+    $default  reduce using rule 94 (equality_exp)
 
 
 state 145
 
-   98 opt_actual_param: actual_param .
+   99 relational_exp: relational_exp TLESS additive_exp .
+  107 additive_exp: additive_exp . TPLUS multiplicative_exp
+  108             | additive_exp . TPLUS error
+  109             | additive_exp . TMINUS
 
-    $default  reduce using rule 98 (opt_actual_param)
+    TPLUS   shift, and go to state 110
+    TMINUS  shift, and go to state 111
+
+    $default  reduce using rule 99 (relational_exp)
 
 
 state 146
 
-  100 actual_param: actual_param_list .
-  102 actual_param_list: actual_param_list . TCOMMA assignment_exp
+   98 relational_exp: relational_exp TOVER additive_exp .
+  107 additive_exp: additive_exp . TPLUS multiplicative_exp
+  108             | additive_exp . TPLUS error
+  109             | additive_exp . TMINUS
 
-    TCOMMA  shift, and go to state 154
+    TPLUS   shift, and go to state 110
+    TMINUS  shift, and go to state 111
 
-    $default  reduce using rule 100 (actual_param)
+    $default  reduce using rule 98 (relational_exp)
 
 
 state 147
 
-   94 postfix_exp: postfix_exp TLLBRACKET expression . TRLBRACKET
+  101 relational_exp: relational_exp TLESSE additive_exp .
+  107 additive_exp: additive_exp . TPLUS multiplicative_exp
+  108             | additive_exp . TPLUS error
+  109             | additive_exp . TMINUS
 
-    TRLBRACKET  shift, and go to state 155
+    TPLUS   shift, and go to state 110
+    TMINUS  shift, and go to state 111
+
+    $default  reduce using rule 101 (relational_exp)
 
 
 state 148
 
-   23 formal_param_list: formal_param_list TCOMMA param_dcl .
+  100 relational_exp: relational_exp TGREATE additive_exp .
+  107 additive_exp: additive_exp . TPLUS multiplicative_exp
+  108             | additive_exp . TPLUS error
+  109             | additive_exp . TMINUS
 
-    $default  reduce using rule 23 (formal_param_list)
+    TPLUS   shift, and go to state 110
+    TMINUS  shift, and go to state 111
+
+    $default  reduce using rule 100 (relational_exp)
 
 
 state 149
 
-   57 if_st: TIF TLSBRACKET expression error .
+  108 additive_exp: additive_exp TPLUS error .
 
-    $default  reduce using rule 57 (if_st)
+    $default  reduce using rule 108 (additive_exp)
 
 
 state 150
 
-   55 if_st: TIF TLSBRACKET expression TRSBRACKET . statement
-   56      | TIF TLSBRACKET expression TRSBRACKET . statement TELSE statement
+  107 additive_exp: additive_exp TPLUS multiplicative_exp .
+  111 multiplicative_exp: multiplicative_exp . TSTAR unary_exp
+  112                   | multiplicative_exp . TSLASH unary_exp
+  113                   | multiplicative_exp . TMOD unary_exp
+  114                   | multiplicative_exp . TSTAR error
+  115                   | multiplicative_exp . TSLASH error
+  116                   | multiplicative_exp . TMOD error
 
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TIF         shift, and go to state 40
-    TRETURN     shift, and go to state 41
-    TWHILE      shift, and go to state 42
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-    TLMBRACKET  shift, and go to state 17
+    TSTAR   shift, and go to state 112
+    TSLASH  shift, and go to state 113
+    TMOD    shift, and go to state 114
 
-    $default  reduce using rule 54 (opt_expression)
-
-    compound_st         go to state 48
-    statement           go to state 156
-    expression_st       go to state 52
-    opt_expression      go to state 53
-    if_st               go to state 54
-    while_st            go to state 55
-    return_st           go to state 56
-    expression          go to state 57
-    assignment_exp      go to state 58
-    logical_or_exp      go to state 59
-    logical_and_exp     go to state 60
-    equality_exp        go to state 61
-    relational_exp      go to state 62
-    additive_exp        go to state 63
-    multiplicative_exp  go to state 64
-    unary_exp           go to state 65
-    postfix_exp         go to state 66
-    primary_exp         go to state 67
+    $default  reduce using rule 107 (additive_exp)
 
 
 state 151
 
-   59 while_st: TWHILE TLSBRACKET expression error .
+  114 multiplicative_exp: multiplicative_exp TSTAR error .
 
-    $default  reduce using rule 59 (while_st)
+    $default  reduce using rule 114 (multiplicative_exp)
 
 
 state 152
 
-   58 while_st: TWHILE TLSBRACKET expression TRSBRACKET . statement
+  111 multiplicative_exp: multiplicative_exp TSTAR unary_exp .
 
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TIF         shift, and go to state 40
-    TRETURN     shift, and go to state 41
-    TWHILE      shift, and go to state 42
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-    TLMBRACKET  shift, and go to state 17
-
-    $default  reduce using rule 54 (opt_expression)
-
-    compound_st         go to state 48
-    statement           go to state 157
-    expression_st       go to state 52
-    opt_expression      go to state 53
-    if_st               go to state 54
-    while_st            go to state 55
-    return_st           go to state 56
-    expression          go to state 57
-    assignment_exp      go to state 58
-    logical_or_exp      go to state 59
-    logical_and_exp     go to state 60
-    equality_exp        go to state 61
-    relational_exp      go to state 62
-    additive_exp        go to state 63
-    multiplicative_exp  go to state 64
-    unary_exp           go to state 65
-    postfix_exp         go to state 66
-    primary_exp         go to state 67
+    $default  reduce using rule 111 (multiplicative_exp)
 
 
 state 153
 
-   95 postfix_exp: postfix_exp TLSBRACKET opt_actual_param TRSBRACKET .
+  115 multiplicative_exp: multiplicative_exp TSLASH error .
 
-    $default  reduce using rule 95 (postfix_exp)
+    $default  reduce using rule 115 (multiplicative_exp)
 
 
 state 154
 
-  102 actual_param_list: actual_param_list TCOMMA . assignment_exp
+  112 multiplicative_exp: multiplicative_exp TSLASH unary_exp .
 
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-
-    assignment_exp      go to state 158
-    logical_or_exp      go to state 59
-    logical_and_exp     go to state 60
-    equality_exp        go to state 61
-    relational_exp      go to state 62
-    additive_exp        go to state 63
-    multiplicative_exp  go to state 64
-    unary_exp           go to state 65
-    postfix_exp         go to state 66
-    primary_exp         go to state 67
+    $default  reduce using rule 112 (multiplicative_exp)
 
 
 state 155
 
-   94 postfix_exp: postfix_exp TLLBRACKET expression TRLBRACKET .
+  116 multiplicative_exp: multiplicative_exp TMOD error .
 
-    $default  reduce using rule 94 (postfix_exp)
+    $default  reduce using rule 116 (multiplicative_exp)
 
 
 state 156
 
-   55 if_st: TIF TLSBRACKET expression TRSBRACKET statement .
-   56      | TIF TLSBRACKET expression TRSBRACKET statement . TELSE statement
+  113 multiplicative_exp: multiplicative_exp TMOD unary_exp .
 
-    TELSE  shift, and go to state 159
-
-    $default  reduce using rule 55 (if_st)
+    $default  reduce using rule 113 (multiplicative_exp)
 
 
 state 157
 
-   58 while_st: TWHILE TLSBRACKET expression TRSBRACKET statement .
+   80 assignment_exp: unary_exp TASSIGN error .
 
-    $default  reduce using rule 58 (while_st)
+    $default  reduce using rule 80 (assignment_exp)
 
 
 state 158
 
-  102 actual_param_list: actual_param_list TCOMMA assignment_exp .
+   74 assignment_exp: unary_exp TASSIGN assignment_exp .
 
-    $default  reduce using rule 102 (actual_param_list)
+    $default  reduce using rule 74 (assignment_exp)
 
 
 state 159
 
-   56 if_st: TIF TLSBRACKET expression TRSBRACKET statement TELSE . statement
+   81 assignment_exp: unary_exp TADDASSIGN error .
 
-    TIDENT      shift, and go to state 38
-    TNUMBER     shift, and go to state 39
-    TIF         shift, and go to state 40
-    TRETURN     shift, and go to state 41
-    TWHILE      shift, and go to state 42
-    TINC        shift, and go to state 43
-    TDEC        shift, and go to state 44
-    TMINUS      shift, and go to state 45
-    TNOT        shift, and go to state 46
-    TLSBRACKET  shift, and go to state 47
-    TLMBRACKET  shift, and go to state 17
-
-    $default  reduce using rule 54 (opt_expression)
-
-    compound_st         go to state 48
-    statement           go to state 160
-    expression_st       go to state 52
-    opt_expression      go to state 53
-    if_st               go to state 54
-    while_st            go to state 55
-    return_st           go to state 56
-    expression          go to state 57
-    assignment_exp      go to state 58
-    logical_or_exp      go to state 59
-    logical_and_exp     go to state 60
-    equality_exp        go to state 61
-    relational_exp      go to state 62
-    additive_exp        go to state 63
-    multiplicative_exp  go to state 64
-    unary_exp           go to state 65
-    postfix_exp         go to state 66
-    primary_exp         go to state 67
+    $default  reduce using rule 81 (assignment_exp)
 
 
 state 160
 
-   56 if_st: TIF TLSBRACKET expression TRSBRACKET statement TELSE statement .
+   75 assignment_exp: unary_exp TADDASSIGN assignment_exp .
 
-    $default  reduce using rule 56 (if_st)
+    $default  reduce using rule 75 (assignment_exp)
+
+
+state 161
+
+   82 assignment_exp: unary_exp TSUBASSIGN error .
+
+    $default  reduce using rule 82 (assignment_exp)
+
+
+state 162
+
+   76 assignment_exp: unary_exp TSUBASSIGN assignment_exp .
+
+    $default  reduce using rule 76 (assignment_exp)
+
+
+state 163
+
+   83 assignment_exp: unary_exp TMULASSIGN error .
+
+    $default  reduce using rule 83 (assignment_exp)
+
+
+state 164
+
+   77 assignment_exp: unary_exp TMULASSIGN assignment_exp .
+
+    $default  reduce using rule 77 (assignment_exp)
+
+
+state 165
+
+   84 assignment_exp: unary_exp TDIVASSIGN error .
+
+    $default  reduce using rule 84 (assignment_exp)
+
+
+state 166
+
+   78 assignment_exp: unary_exp TDIVASSIGN assignment_exp .
+
+    $default  reduce using rule 78 (assignment_exp)
+
+
+state 167
+
+   85 assignment_exp: unary_exp TMODASSIGN error .
+
+    $default  reduce using rule 85 (assignment_exp)
+
+
+state 168
+
+   79 assignment_exp: unary_exp TMODASSIGN assignment_exp .
+
+    $default  reduce using rule 79 (assignment_exp)
+
+
+state 169
+
+  130 actual_param_list: assignment_exp .
+
+    $default  reduce using rule 130 (actual_param_list)
+
+
+state 170
+
+  124 postfix_exp: postfix_exp TOSBRA opt_actual_param . TCSBRA
+
+    TCSBRA  shift, and go to state 180
+
+
+state 171
+
+  127 opt_actual_param: actual_param .
+
+    $default  reduce using rule 127 (opt_actual_param)
+
+
+state 172
+
+  129 actual_param: actual_param_list .
+  131 actual_param_list: actual_param_list . TCOMMA assignment_exp
+
+    TCOMMA  shift, and go to state 181
+
+    $default  reduce using rule 129 (actual_param)
+
+
+state 173
+
+  123 postfix_exp: postfix_exp TOLBRA expression . TCLBRA
+
+    TCLBRA  shift, and go to state 182
+
+
+state 174
+
+   27 formal_param_list: formal_param_list error param_dcl .
+
+    $default  reduce using rule 27 (formal_param_list)
+
+
+state 175
+
+   26 formal_param_list: formal_param_list TCOMMA param_dcl .
+
+    $default  reduce using rule 26 (formal_param_list)
+
+
+state 176
+
+   67 if_st: TIF TOSBRA expression error .
+
+    $default  reduce using rule 67 (if_st)
+
+
+state 177
+
+   65 if_st: TIF TOSBRA expression TCSBRA . statement
+   66      | TIF TOSBRA expression TCSBRA . statement TELSE statement
+
+    TIF      shift, and go to state 44
+    TRETURN  shift, and go to state 45
+    TWHILE   shift, and go to state 46
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TOMBRA   shift, and go to state 19
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    $default  reduce using rule 64 (opt_expression)
+
+    compound_st         go to state 55
+    statement           go to state 183
+    expression_st       go to state 59
+    opt_expression      go to state 60
+    if_st               go to state 61
+    while_st            go to state 62
+    return_st           go to state 63
+    expression          go to state 64
+    assignment_exp      go to state 65
+    logical_or_exp      go to state 66
+    logical_and_exp     go to state 67
+    equality_exp        go to state 68
+    relational_exp      go to state 69
+    additive_exp        go to state 70
+    multiplicative_exp  go to state 71
+    unary_exp           go to state 72
+    postfix_exp         go to state 73
+    primary_exp         go to state 74
+
+
+state 178
+
+   69 while_st: TWHILE TOSBRA expression error .
+
+    $default  reduce using rule 69 (while_st)
+
+
+state 179
+
+   68 while_st: TWHILE TOSBRA expression TCSBRA . statement
+
+    TIF      shift, and go to state 44
+    TRETURN  shift, and go to state 45
+    TWHILE   shift, and go to state 46
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TOMBRA   shift, and go to state 19
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    $default  reduce using rule 64 (opt_expression)
+
+    compound_st         go to state 55
+    statement           go to state 184
+    expression_st       go to state 59
+    opt_expression      go to state 60
+    if_st               go to state 61
+    while_st            go to state 62
+    return_st           go to state 63
+    expression          go to state 64
+    assignment_exp      go to state 65
+    logical_or_exp      go to state 66
+    logical_and_exp     go to state 67
+    equality_exp        go to state 68
+    relational_exp      go to state 69
+    additive_exp        go to state 70
+    multiplicative_exp  go to state 71
+    unary_exp           go to state 72
+    postfix_exp         go to state 73
+    primary_exp         go to state 74
+
+
+state 180
+
+  124 postfix_exp: postfix_exp TOSBRA opt_actual_param TCSBRA .
+
+    $default  reduce using rule 124 (postfix_exp)
+
+
+state 181
+
+  131 actual_param_list: actual_param_list TCOMMA . assignment_exp
+
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    assignment_exp      go to state 185
+    logical_or_exp      go to state 66
+    logical_and_exp     go to state 67
+    equality_exp        go to state 68
+    relational_exp      go to state 69
+    additive_exp        go to state 70
+    multiplicative_exp  go to state 71
+    unary_exp           go to state 72
+    postfix_exp         go to state 73
+    primary_exp         go to state 74
+
+
+state 182
+
+  123 postfix_exp: postfix_exp TOLBRA expression TCLBRA .
+
+    $default  reduce using rule 123 (postfix_exp)
+
+
+state 183
+
+   65 if_st: TIF TOSBRA expression TCSBRA statement .
+   66      | TIF TOSBRA expression TCSBRA statement . TELSE statement
+
+    TELSE  shift, and go to state 186
+
+    $default  reduce using rule 65 (if_st)
+
+
+state 184
+
+   68 while_st: TWHILE TOSBRA expression TCSBRA statement .
+
+    $default  reduce using rule 68 (while_st)
+
+
+state 185
+
+  131 actual_param_list: actual_param_list TCOMMA assignment_exp .
+
+    $default  reduce using rule 131 (actual_param_list)
+
+
+state 186
+
+   66 if_st: TIF TOSBRA expression TCSBRA statement TELSE . statement
+
+    TIF      shift, and go to state 44
+    TRETURN  shift, and go to state 45
+    TWHILE   shift, and go to state 46
+    TPOINT   shift, and go to state 47
+    TMINUS   shift, and go to state 48
+    TINC     shift, and go to state 49
+    TDEC     shift, and go to state 50
+    TOSBRA   shift, and go to state 51
+    TOMBRA   shift, and go to state 19
+    TNUMBER  shift, and go to state 52
+    TNOT     shift, and go to state 53
+    TIDENT   shift, and go to state 54
+
+    $default  reduce using rule 64 (opt_expression)
+
+    compound_st         go to state 55
+    statement           go to state 187
+    expression_st       go to state 59
+    opt_expression      go to state 60
+    if_st               go to state 61
+    while_st            go to state 62
+    return_st           go to state 63
+    expression          go to state 64
+    assignment_exp      go to state 65
+    logical_or_exp      go to state 66
+    logical_and_exp     go to state 67
+    equality_exp        go to state 68
+    relational_exp      go to state 69
+    additive_exp        go to state 70
+    multiplicative_exp  go to state 71
+    unary_exp           go to state 72
+    postfix_exp         go to state 73
+    primary_exp         go to state 74
+
+
+state 187
+
+   66 if_st: TIF TOSBRA expression TCSBRA statement TELSE statement .
+
+    $default  reduce using rule 66 (if_st)

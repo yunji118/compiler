@@ -26,29 +26,29 @@ ERROR error = noerror;
 void PrintError(enum errorTypes error, char* string) {
     int i;
     switch (error) {
-    case overst:
-        printf("***Error***\t\tOVERFLOW\n");
-        ++cErrors;
-        exit(0);
-        break;
-    case illid:
-        printf("***Error***\t\t%s start with digit\n", string);
-        ++cErrors;
-        break;
-    case illlen:
-        printf("***Error***\t\t%s over 10 words\n", string);
-        ++cErrors;
-        break;
-    case illchar:
-        printf("***Error***\t\t");
-        ++cErrors;
-        for (i = 0; i < strlen(string); i++) {
-            if (!isLetter(string[i]) && !isDigit(string[i]))
-            {
-                printf("%c ", string[i]);
+        case overst:
+            printf("***Error***\t\tOVERFLOW\n");
+            ++cErrors;
+            exit(0);
+            break;
+        case illid:
+            printf("***Error***\t\t%s start with digit\n", string);
+            ++cErrors;
+            break;
+        case illlen:
+            printf("***Error***\t\t%s over 10 words\n", string);
+            ++cErrors;
+            break;
+        case illchar:
+            printf("***Error***\t\t");
+            ++cErrors;
+            for (i = 0; i < strlen(string); i++) {
+                if (!isLetter(string[i]) && !isDigit(string[i]))
+                {
+                    printf("%c ", string[i]);
+                }
             }
-        }
-        printf("illegal Character");
-        break;
+            printf("illegal Character\n");
+            break;
     }
 }

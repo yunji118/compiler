@@ -16,6 +16,7 @@ digit   [0-9]
 "else"      return(TELSE);
 "if"      return(TIF);
 "int"      return(TINT);
+"float"      return(TFLOAT);
 "return"   return(TRETURN);
 "void"      return(TVOID);
 "while"      return(TWHILE);
@@ -50,7 +51,7 @@ digit   [0-9]
 "]"      return(TRLBRACKET);
 ";"      return(TSEMICOLON);
 "\n"     {
-            line++;
+            cLine++;
          }
 {letter}({letter}|{digit})* {
                                 if (yyleng <= 10) {

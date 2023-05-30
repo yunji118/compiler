@@ -49,5 +49,6 @@ typedef union
 #define TLINE 300
 #define TILLID 301
 #define TERROR 302
+#define TFLOAT 303
 
 extern YYSTYPE yylval;

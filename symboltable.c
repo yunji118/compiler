@@ -27,6 +27,7 @@ void ComputeHS(int nid, int nfree)
     }
 
     hashcode = code % HTsize;
+
 }
 
 void LookupHS(int nid, int hscode)
@@ -59,11 +60,11 @@ void ADDHT(int hscode)
 {
     HTpointer ptr;
 
-    ptr = (HTpointer)malloc(sizeof(ptr));
+    ptr = (HTpointer)malloc(sizeof(HTentry));
     ptr->index = nextid;
     ptr->next = HT[hscode];
-    //ptr->name = (char*)malloc(sizeof(Strsize));
     HT[hscode] = ptr;
+    HT[hscode]->line = cLine;
 }
 
 /*ReadID 함수 : string 읽어서 ST에 넣기(overst 에러 체크)*/
@@ -81,25 +82,20 @@ void ReadID(char* string)
             ST[nextSTfree++] = string[i];
         }
     }
-    //printf("ident\t\t\t%d", nextid);  //symbol table에서 현재 token이 저장된 인덱스 출력
+    //printf("ident\t\t%s\t%d\n", string, nextid);  //symbol table에서 현재 token이 저장된 인덱스 출력
 }
-
 
 /* SymTable 함수 : Hash Table 전체 시스템 구성 */
 void SymTable(char* string) {
     ReadID(string);
     ComputeHS(nextid, nextSTfree);
     LookupHS(nextid, hashcode);
-    int i;
+    strcpy(identifier, string);
     if (!found) {
-        printf("(entered) %s %d\n", string, hashcode);
+        //printf("(entered) %s %d\n", string, hashcode);
         ADDHT(hashcode);
-        HT[hashcode]->line = line;
-        for (i = 0; i < strlen(string); i++) {
-            HT[hashcode]->name[i] = string[i];
-        }
-        HT[hashcode]->hscode = hashcode;
-        HT[hashcode]->name[i] = '\0';
+        //printf("%d ", cLine);
+
         //printf("name_len = %d\n", strlen(HT[hashcode]->name));
         //printf("name = %s, line = %d\n", HT[hashcode]->name, HT[hashcode]->line);
     }

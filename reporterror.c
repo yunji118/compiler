@@ -8,6 +8,7 @@
 #include "glob.h"
 
 int yyerror(char *s) {
+    cErrors++;
     printf("%s\n", s);
 }
 
