@@ -192,7 +192,7 @@ extern int yyerror(char *s);
 # undef YYERROR_VERBOSE
 # define YYERROR_VERBOSE 1
 #else
-# define YYERROR_VERBOSE 1
+# define YYERROR_VERBOSE 0
 #endif
 
 /* Enabling the token table.  */
@@ -556,20 +556,20 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    34,    34,    35,    36,    38,    39,    40,    42,    43,
-      44,    51,    54,    56,    57,    60,    61,    63,    64,    68,
-      74,    89,    95,    99,   106,   108,   113,   114,   115,   121,
-     124,   125,   132,   133,   136,   137,   139,   145,   157,   158,
-     159,   166,   167,   168,   175,   202,   217,   224,   225,   228,
-     229,   232,   233,   236,   237,   238,   239,   240,   243,   246,
-     247,   250,   251,   252,   257,   262,   269,   270,   275,   281,
-     282,   288,   290,   291,   292,   293,   294,   295,   296,   297,
-     302,   307,   312,   317,   322,   328,   329,   330,   336,   337,
-     338,   344,   345,   346,   347,   352,   358,   359,   360,   361,
-     362,   363,   368,   373,   378,   384,   385,   386,   387,   392,
-     398,   399,   400,   401,   402,   407,   412,   419,   420,   421,
-     422,   423,   426,   427,   428,   433,   434,   439,   440,   442,
-     443,   445,   447,   448,   450,   456,   457,   458
+       0,    32,    32,    33,    34,    36,    37,    38,    40,    41,
+      42,    49,    52,    54,    55,    58,    59,    61,    62,    66,
+      72,    87,    93,    97,   104,   106,   111,   112,   113,   119,
+     122,   123,   130,   131,   134,   135,   137,   143,   155,   156,
+     157,   164,   165,   166,   173,   200,   215,   222,   223,   226,
+     227,   230,   231,   234,   235,   236,   237,   238,   241,   244,
+     245,   248,   249,   250,   255,   260,   267,   268,   273,   279,
+     280,   286,   288,   289,   290,   291,   292,   293,   294,   295,
+     300,   305,   310,   315,   320,   326,   327,   328,   334,   335,
+     336,   342,   343,   344,   345,   350,   356,   357,   358,   359,
+     360,   361,   366,   371,   376,   382,   383,   384,   385,   390,
+     396,   397,   398,   399,   400,   405,   410,   417,   418,   419,
+     420,   421,   424,   425,   426,   431,   432,   437,   438,   440,
+     441,   443,   445,   446,   448,   454,   455,   456
 };
 #endif
 
@@ -1667,7 +1667,7 @@ yyreduce:
   switch (yyn)
     {
         case 10:
-#line 45 "parser.y"
+#line 43 "parser.y"
     {
 				yyerrok;
 				yyerror("wrong function");
@@ -1675,21 +1675,21 @@ yyreduce:
     break;
 
   case 18:
-#line 65 "parser.y"
+#line 63 "parser.y"
     {
 				type_int=1;
 			;}
     break;
 
   case 19:
-#line 69 "parser.y"
+#line 67 "parser.y"
     {
 				type_void=1;
 			;}
     break;
 
   case 20:
-#line 75 "parser.y"
+#line 73 "parser.y"
     {
 				if(look_id->type==0||look_id->type==5){
 					if(type_void==1){
@@ -1706,7 +1706,7 @@ yyreduce:
     break;
 
   case 21:
-#line 89 "parser.y"
+#line 87 "parser.y"
     {
 				yyerrok;
 				yyerror("no function name");
@@ -1714,14 +1714,14 @@ yyreduce:
     break;
 
   case 22:
-#line 96 "parser.y"
+#line 94 "parser.y"
     {
 				param=0;
 			;}
     break;
 
   case 23:
-#line 100 "parser.y"
+#line 98 "parser.y"
     {
 				yyerrok;
 				yyerror("no right small bracket");
@@ -1729,14 +1729,14 @@ yyreduce:
     break;
 
   case 25:
-#line 108 "parser.y"
+#line 106 "parser.y"
     {
 				param=0;
 			;}
     break;
 
   case 28:
-#line 115 "parser.y"
+#line 113 "parser.y"
     {
 				yyerrok;
 				yyerror("no comma");
@@ -1744,7 +1744,7 @@ yyreduce:
     break;
 
   case 31:
-#line 126 "parser.y"
+#line 124 "parser.y"
     {
 				yyerrok;
 				yyerror("no right medium bracket");
@@ -1752,7 +1752,7 @@ yyreduce:
     break;
 
   case 36:
-#line 140 "parser.y"
+#line 138 "parser.y"
     {
 				type_int=0;
 				type_void=0;
@@ -1761,7 +1761,7 @@ yyreduce:
     break;
 
   case 37:
-#line 146 "parser.y"
+#line 144 "parser.y"
     {
 				look_tmp->type=0; /* identifier about parse error*/
 				yyerrok;
@@ -1774,7 +1774,7 @@ yyreduce:
     break;
 
   case 40:
-#line 160 "parser.y"
+#line 158 "parser.y"
     {
 				yyerrok;
 				yyerror("no comma");
@@ -1782,7 +1782,7 @@ yyreduce:
     break;
 
   case 43:
-#line 169 "parser.y"
+#line 167 "parser.y"
     {
 				yyerrok;
 				yyerror("no number");
@@ -1790,7 +1790,7 @@ yyreduce:
     break;
 
   case 44:
-#line 176 "parser.y"
+#line 174 "parser.y"
     {
 				if(look_id->type==0){
 					//매개변수 아닐 때
@@ -1820,7 +1820,7 @@ yyreduce:
     break;
 
   case 45:
-#line 203 "parser.y"
+#line 201 "parser.y"
     {
 				if(look_id->type==0){
 					if(type_int==1) {
@@ -1838,7 +1838,7 @@ yyreduce:
     break;
 
   case 46:
-#line 218 "parser.y"
+#line 216 "parser.y"
     {
 				yyerrok;
 				yyerror("no right large bracket");
@@ -1846,7 +1846,7 @@ yyreduce:
     break;
 
   case 63:
-#line 253 "parser.y"
+#line 251 "parser.y"
     {
 				yyerrok;
 				yyerror("no right small bracket");
@@ -1854,7 +1854,7 @@ yyreduce:
     break;
 
   case 64:
-#line 258 "parser.y"
+#line 256 "parser.y"
     {
 				yyerrok;
 				yyerror("no expression");
@@ -1862,7 +1862,7 @@ yyreduce:
     break;
 
   case 65:
-#line 263 "parser.y"
+#line 261 "parser.y"
     {
 				yyerrok;
 				yyerror("no small left bracket");
@@ -1870,7 +1870,7 @@ yyreduce:
     break;
 
   case 67:
-#line 271 "parser.y"
+#line 269 "parser.y"
     {
 				yyerrok;
 				yyerror("no right small bracket");
@@ -1878,7 +1878,7 @@ yyreduce:
     break;
 
   case 68:
-#line 276 "parser.y"
+#line 274 "parser.y"
     {
 				yyerrok;
 				yyerror("no left small bracket");
@@ -1886,7 +1886,7 @@ yyreduce:
     break;
 
   case 70:
-#line 283 "parser.y"
+#line 281 "parser.y"
     {
 				yyerrok;
 				yyerror("no semicolon");
@@ -1894,7 +1894,7 @@ yyreduce:
     break;
 
   case 79:
-#line 298 "parser.y"
+#line 296 "parser.y"
     {
 				yyerrok;
 				yyerror("no expression");
@@ -1902,7 +1902,7 @@ yyreduce:
     break;
 
   case 80:
-#line 303 "parser.y"
+#line 301 "parser.y"
     {
 				yyerrok;
 				yyerror("no expression");
@@ -1910,7 +1910,7 @@ yyreduce:
     break;
 
   case 81:
-#line 308 "parser.y"
+#line 306 "parser.y"
     {
 				yyerrok;
 				yyerror("no expression");
@@ -1918,7 +1918,7 @@ yyreduce:
     break;
 
   case 82:
-#line 313 "parser.y"
+#line 311 "parser.y"
     {
 				yyerrok;
 				yyerror("no expression");
@@ -1926,7 +1926,7 @@ yyreduce:
     break;
 
   case 83:
-#line 318 "parser.y"
+#line 316 "parser.y"
     {
 				yyerrok;
 				yyerror("no expression");
@@ -1934,7 +1934,7 @@ yyreduce:
     break;
 
   case 84:
-#line 323 "parser.y"
+#line 321 "parser.y"
     {
 				yyerrok;
 				yyerror("no expression");
@@ -1942,7 +1942,7 @@ yyreduce:
     break;
 
   case 87:
-#line 331 "parser.y"
+#line 329 "parser.y"
     {
 				yyerrok;
 				yyerror("no expression");
@@ -1950,7 +1950,7 @@ yyreduce:
     break;
 
   case 90:
-#line 339 "parser.y"
+#line 337 "parser.y"
     {
 				yyerrok;
 				yyerror("no expression");
@@ -1958,7 +1958,7 @@ yyreduce:
     break;
 
   case 94:
-#line 348 "parser.y"
+#line 346 "parser.y"
     {
 				yyerrok;
 				yyerror("no expression");
@@ -1966,7 +1966,7 @@ yyreduce:
     break;
 
   case 95:
-#line 353 "parser.y"
+#line 351 "parser.y"
     {
 				yyerrok;
 				yyerror("no expression");
@@ -1974,7 +1974,7 @@ yyreduce:
     break;
 
   case 101:
-#line 364 "parser.y"
+#line 362 "parser.y"
     {
 				yyerrok;
 				yyerror("no expression");
@@ -1982,7 +1982,7 @@ yyreduce:
     break;
 
   case 102:
-#line 369 "parser.y"
+#line 367 "parser.y"
     {
 				yyerrok;
 				yyerror("no expression");
@@ -1990,7 +1990,7 @@ yyreduce:
     break;
 
   case 103:
-#line 374 "parser.y"
+#line 372 "parser.y"
     {
 				yyerrok;
 				yyerror("no expression");
@@ -1998,7 +1998,7 @@ yyreduce:
     break;
 
   case 104:
-#line 379 "parser.y"
+#line 377 "parser.y"
     {
 				yyerrok;
 				yyerror("no expression");
@@ -2006,7 +2006,7 @@ yyreduce:
     break;
 
   case 108:
-#line 388 "parser.y"
+#line 386 "parser.y"
     {
 				yyerrok;
 				yyerror("no expression");
@@ -2014,7 +2014,7 @@ yyreduce:
     break;
 
   case 109:
-#line 393 "parser.y"
+#line 391 "parser.y"
     {
 				yyerrok;
 				yyerror("no expression");
@@ -2022,7 +2022,7 @@ yyreduce:
     break;
 
   case 114:
-#line 403 "parser.y"
+#line 401 "parser.y"
     {
 				yyerrok;
 				yyerror("no expression");
@@ -2030,7 +2030,7 @@ yyreduce:
     break;
 
   case 115:
-#line 408 "parser.y"
+#line 406 "parser.y"
     {
 				yyerrok;
 				yyerror("no expression");
@@ -2038,7 +2038,7 @@ yyreduce:
     break;
 
   case 116:
-#line 413 "parser.y"
+#line 411 "parser.y"
     {
 				yyerrok;
 				yyerror("no expression");
@@ -2046,7 +2046,7 @@ yyreduce:
     break;
 
   case 124:
-#line 429 "parser.y"
+#line 427 "parser.y"
     {
 				yyerrok;
 				yyerror("no right large bracket");
@@ -2054,7 +2054,7 @@ yyreduce:
     break;
 
   case 126:
-#line 435 "parser.y"
+#line 433 "parser.y"
     {
 				yyerrok;
 				yyerror("no right small bracket");
@@ -2062,7 +2062,7 @@ yyreduce:
     break;
 
   case 134:
-#line 451 "parser.y"
+#line 449 "parser.y"
     {
 				if(look_id->type==0)
 					look_id->type=5;
@@ -2071,7 +2071,7 @@ yyreduce:
     break;
 
   case 137:
-#line 459 "parser.y"
+#line 457 "parser.y"
     {
 				yyerrok;
 				yyerror("no right small bracket");
@@ -2294,7 +2294,7 @@ yyreturn:
 }
 
 
-#line 464 "parser.y"
+#line 462 "parser.y"
 
 void updateAttribute(int type)
 {

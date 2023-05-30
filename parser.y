@@ -17,8 +17,6 @@ extern int yyerror(char *s);
 /*yacc source for Mini C*/
 %}
 
-%error-verbose
-
 %nonassoc TLOWERTHANELSE
 %nonassoc TELSE
 
