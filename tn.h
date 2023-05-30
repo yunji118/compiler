@@ -1,6 +1,7 @@
-typedef int YYSTYPE;
-
-enum errorTypes { noerror, illsp, illid, overst, illlen, illchar };
+typedef union
+{
+    char *id;
+} YYSTYPE;
 
 /* Tokens.  */
 #define TLOWERTHANELSE 258
@@ -48,13 +49,5 @@ enum errorTypes { noerror, illsp, illid, overst, illlen, illchar };
 #define TLINE 300
 #define TILLID 301
 #define TERROR 302
-
-
-#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
-# define yystype YYSTYPE /* obsolescent; will be withdrawn */
-# define YYSTYPE_IS_DECLARED 1
-# define YYSTYPE_IS_TRIVIAL 1
-#endif
 
 extern YYSTYPE yylval;

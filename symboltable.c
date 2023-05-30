@@ -22,7 +22,7 @@ void ComputeHS(int nid, int nfree)
 {
     int code, i;
     code = 0;
-    for (i = nid; i < nfree - 1; i++) {
+    for (i = nid; i < nfree; i++) {
         code += (int)ST[i];
     }
 
@@ -62,6 +62,7 @@ void ADDHT(int hscode)
     ptr = (HTpointer)malloc(sizeof(ptr));
     ptr->index = nextid;
     ptr->next = HT[hscode];
+    //ptr->name = (char*)malloc(sizeof(Strsize));
     HT[hscode] = ptr;
 }
 
@@ -89,13 +90,21 @@ void SymTable(char* string) {
     ReadID(string);
     ComputeHS(nextid, nextSTfree);
     LookupHS(nextid, hashcode);
-
+    int i;
     if (!found) {
-        printf("(entered) %s\n", string);
+        printf("(entered) %s %d\n", string, hashcode);
         ADDHT(hashcode);
+        HT[hashcode]->line = line;
+        for (i = 0; i < strlen(string); i++) {
+            HT[hashcode]->name[i] = string[i];
+        }
+        HT[hashcode]->hscode = hashcode;
+        HT[hashcode]->name[i] = '\0';
+        //printf("name_len = %d\n", strlen(HT[hashcode]->name));
+        //printf("name = %s, line = %d\n", HT[hashcode]->name, HT[hashcode]->line);
     }
     else {
-        printf("(already existed) %s\n", string);
+        //printf("(already existed) %s\n", string);
         nextSTfree = nextid;
     }
 

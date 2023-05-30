@@ -82,8 +82,7 @@
      TCOMMENT = 298,
      TSEPERATOR = 299,
      TLINE = 300,
-     TILLID = 301,
-     TERROR = 302
+     TILLID = 301
    };
 #endif
 /* Tokens.  */
@@ -131,13 +130,19 @@
 #define TSEPERATOR 299
 #define TLINE 300
 #define TILLID 301
-#define TERROR 302
 
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+typedef union YYSTYPE
+#line 26 "parser.y"
+{
+        char *str;
+}
+/* Line 1529 of yacc.c.  */
+#line 145 "parser.tab.h"
+	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 # define YYSTYPE_IS_TRIVIAL 1

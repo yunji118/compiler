@@ -30,4 +30,3 @@ void ReportError(char* string) {
         printf("\t\t%s", string);    //읽은 토큰 출력
     }
 }
-

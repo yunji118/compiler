@@ -1,12 +1,13 @@
-const int max=100;
-void main()
+const int max, as, askd;
+
+int main()
 {
     int i,j,k;
     int rem, prime;   // rem:remainder
 
     i=2;
 
-    while(i<=max) {
+    while(i<=max {
         prime = 1;
         k=i/2;
         j=2;
@@ -16,6 +17,8 @@ void main()
             ++j;
         }
         if(prime==1) write(i);
+
+        etirw();
         ++i;
     }
 }

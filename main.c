@@ -12,8 +12,6 @@ extern yylex();
 int extern yyparse();
 extern char* yytext;
 
-//void extern printtoken(enum tokentypes tn);
-
 void PrintHStable()
 {
     int i, j;
@@ -23,7 +21,7 @@ void PrintHStable()
 
     for (i = 0; i < HTsize; i++) {
         if (HT[i] != NULL) {
-            printf("  Hash Code %3d :", i);
+            printf("  Hash Code %3d :", HT[i]->hscode);
             for (here = HT[i]; here != NULL; here = here->next) {
                 j = here->index;
                 while (ST[j] != '\0' && j < STsize)

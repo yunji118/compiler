@@ -4,9 +4,10 @@
 * date - 2023/04/26
 /*lex source for Mini C*/
 #include "tn.h"
+#include "glob.h"
+
 extern void PrintError(enum errorTypes error, char* string);
 extern void SymTable(char* string);
-//extern void printtoken(enum yytokentype tn);
 %}
 letter  [a-zA-Z_]
 digit   [0-9]
@@ -48,13 +49,23 @@ digit   [0-9]
 "["      return(TLLBRACKET);
 "]"      return(TRLBRACKET);
 ";"      return(TSEMICOLON);
-"//".*      ;
-
-[A-Za-z_][A-Za-z0-9_]*      if(yyleng>10){PrintError(illlen, yytext); return(TERROR);} else{SymTable(yytext); return(TIDENT);}
+"\n"     {
+            line++;
+         }
+{letter}({letter}|{digit})* {
+                                if (yyleng <= 10) {
+                                    SymTable(yytext);
+                                    return(TIDENT);
+                                } else {
+                                    PrintError(illlen, yytext);
+                                    return(TERROR);
+                                }
+                            }
 [1-9][0-9]*|0([0-7]+|(x|X)[0-9A-Fa-f]*)?   return(TNUMBER);
-[0-9]+[A-Za-z_][A-Za-z0-9_]*   PrintError(illid, yytext);
-[ \t\n]  ;
-.   return(yytext[0]);
+{digit}+{letter}[A-Za-z0-9_]*   PrintError(illid, yytext);
+"//".*   ;
+[ \t]  ;
+.   PrintError(illchar, yytext);
 %%
 
 int yywrap() {
