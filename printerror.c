@@ -1,6 +1,6 @@
 /* printerror.c - Check identifier error
-* programmer - ±èÁöÀ±, ±èµµ¿¬, ±è¿ø¿ì, ÇÏÀ±Áö
-* date - 2023/04/26
+* programmer - ê¹€ì§€ìœ¤, ê¹€ë„ì—°, ê¹€ì›ìš°, í•˜ìœ¤ì§€
+* date - 2023/05/31
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,46 +15,41 @@ typedef enum errorTypes ERROR;
 ERROR error = noerror;
 
 /*
-* PrintError ÇÔ¼ö: errorTypes °´Ã¼ ³»¿ëÀ» ¹ÙÅÁÀ¸·Î ERROR Á¤º¸¸¦ Ãâ·Â
+* PrintError í•¨ìˆ˜: errorTypes ê°ì²´ ë‚´ìš©ì„ ë°”íƒ•ìœ¼ë¡œ ERROR ì •ë³´ë¥¼ ì¶œë ¥
 *
-* error: illid(¼ıÀÚ¿Í ÇÔ²² ½ÃÀÛÇÏ´Â ½Äº°ÀÚ ¿¡·¯)
-*        illlen(½Äº°ÀÚ±æÀÌidlenÀ» ³Ñ´Â ½Äº°ÀÚ ¿¡·¯)
-*        illchar(Çã¿ëµÇÁö ¾ÊÀº ¹®ÀÚ°¡ µé¾î¿Â °æ¿ì ¿¡·¯)
-*        overst(Å©±â·Î overflow ¹ß»ı)
+* error: illid(ìˆ«ìì™€ í•¨ê»˜ ì‹œì‘í•˜ëŠ” ì‹ë³„ì ì—ëŸ¬)
+*        illlen(ì‹ë³„ìê¸¸ì´idlenì„ ë„˜ëŠ” ì‹ë³„ì ì—ëŸ¬)
+*        illchar(í—ˆìš©ë˜ì§€ ì•Šì€ ë¬¸ìê°€ ë“¤ì–´ì˜¨ ê²½ìš° ì—ëŸ¬)
+*        overst(í¬ê¸°ë¡œ overflow ë°œìƒ)
 */
 
 void PrintError(enum errorTypes error, char* string) {
     int i;
+    printf("%d\t\t", cLine);
     switch (error) {
     case overst:
-        printf("***Error***\t\t\t\tOVERFLOW\n");
+        printf("***Error***\t\tOVERFLOW\n");
         ++cErrors;
         exit(0);
         break;
     case illid:
-        printf("***Error***\t\t\t\t%s illegal IDENT", string);
+        printf("***Error***\t\t%s start with digit\n", string);
         ++cErrors;
         break;
     case illlen:
-        printf("***Error***\t\t\t%s over 10 words", string);
+        printf("***Error***\t\t%s over 10 words\n", string);
         ++cErrors;
         break;
     case illchar:
-        printf("***Error***\t\t\t\t");
+        printf("***Error***\t\t");
         ++cErrors;
-        for (i = 0; i < (int)strlen(string); i++) {
+        for (i = 0; i < strlen(string); i++) {
             if (!isLetter(string[i]) && !isDigit(string[i]))
             {
                 printf("%c ", string[i]);
             }
         }
-        printf("illegal Character");
+        printf("illegal Character\n");
         break;
     }
-}
-
-yyerror(sb)
-char* sb;
-{
-    printf("%s\n", sb);
 }
