@@ -1,51 +1,35 @@
-/* reporterror.c - identifier error È®ÀÎ
-* programmer - ±èÁöÀ±, ±èµµ¿¬, ±è¿ø¿ì, ÇÏÀ±Áö
-* date - 2023/04/26
+/* reporterror.c - identifier error í™•ì¸
+* programmer - ê¹€ì§€ìœ¤, ê¹€ë„ì—°, ê¹€ì›ìš°, í•˜ìœ¤ì§€
+* date - 2023/05/31
 */
 #include <stdio.h>
 #include <string.h>
 #include "tn.h"
 #include "glob.h"
 
+int yyerror(char* s) {
+    if (s != "syntax error" && s != "parse error") {
+        cErrors++;
+        printf("%d\t\t%s\n", cLine, s);
+    }
+}
+
 extern void PrintError(enum errorTypes error, char* string);
-extern void ReadID(char* string);
-extern void ADDHT(int hscode);
-extern void LookupHS(int nid, int hscode);
-extern void ComputeHS(int nid, int nfree);
 
 typedef enum errorTypes ERRORtypes;
 ERRORtypes error;
 
+extern void ReadID(char* string);
 
-/*ReportError ÇÔ¼ö - ÇöÀç µé¾î¿Â stringÀÌ 10±ÛÀÚ ÀÌ³»ÀÎÁö È®ÀÎ */
+/*ReportError í•¨ìˆ˜ - í˜„ì¬ ë“¤ì–´ì˜¨ stringì´ 10ê¸€ì ì´ë‚´ì¸ì§€ í™•ì¸ */
 void ReportError(char* string) {
     if (strlen(string) > 10) {
         error = illlen;
         PrintError(illlen, string);
     }
     else {
-        //±ÛÀÚ¼ö ¾È ³Ñ´Â Á¤»ó ±æÀÌ ident
-        //¿©±â¼­ hashtable¿¡ ÀúÀå!
-        ReadID(string); //ST-index Ãâ·Â
-        ComputeHS(nextid, nextSTfree);
-        LookupHS(nextid, hashcode);
-        //printf("\t\t%s", string);    //ÀĞÀº ÅäÅ« Ãâ·Â
-        if (nextSTfree - nextid - 1 > 10) {
-            PrintError(illlen, string);
-            nextSTfree = nextid;
-        }
-        else if (!found) {
-            //printf("%6d              ", nextid);
-            //printf("%s", string);
-            //printf("       (entered)\n");
-            ADDHT(hashcode);
-        }
-        else {
-            //printf("%6d              ", sameid);
-            //printf("%s", string);
-            //printf("       (already existed)\n");
-            nextSTfree = nextid;
-        }
+        //ê¸€ììˆ˜ ì•ˆ ë„˜ëŠ” ì •ìƒ ê¸¸ì´ ident
+        ReadID(string); //ST-index ì¶œë ¥
+        printf("\t\t%s", string);    //ì½ì€ í† í° ì¶œë ¥
     }
 }
-
